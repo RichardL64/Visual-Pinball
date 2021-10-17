@@ -42,8 +42,9 @@
 '	10.7 and later automatically uses the ActiveTable
 '
 Dim Audio_Table
+on error resume next
 Set Audio_Table = ActiveTable		' Automatic on 10.7 or later
-
+on error goto 0
 
 '	Audio Rate is the power to use on the curve: 2 gives smooth transition
 '		<1 	Prefers off centre:	-1 and +1 mix
