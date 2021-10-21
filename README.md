@@ -7,7 +7,7 @@ PinballY
 
 VPX
   - SSF 10.7.vbs
-    - Standardise SSF code and make conversion of questionable tables easier
+    - Standardise SSF code and make conversion/upgrade of tables easier
     - Common existing code like JP's ball rolling in one place
     - Factor surround sound SSF into a separate scripts file
     - Abstract away objects that don't have .x , .y properties automatically so simple PlaySoundAt works on any object type
