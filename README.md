@@ -1,2 +1,2 @@
 # Richards-Visual-Pinball
-Visual pinball mods/scripts settings.
+Visual pinball & associated software mods/scripts settings.
