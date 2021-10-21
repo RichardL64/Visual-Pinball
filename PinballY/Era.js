@@ -11,7 +11,7 @@ let myEras = 3
 
 //	On loading set the default era
 //
-let myEraDefault =2;
+let myEraDefault = 2;
 setEra(myEraDefault);
 
 //	Catch keypresses and inc/dec era index
