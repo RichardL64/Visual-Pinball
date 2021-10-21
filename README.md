@@ -1,4 +1,4 @@
-# Richards-Visual-Pinball
+# Visual-Pinball
 Visual pinball & associated software mods/scripts settings.
 
 PinballY
