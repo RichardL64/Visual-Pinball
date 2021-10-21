@@ -47,3 +47,5 @@ function myPOTick() {
 logfile.log("[PowerOff] Initialised");
 mainWindow.on("attractmodestart", myAttractStart);
 mainWindow.on("attractmodeend", myAttractEnd);
+
+//	End
