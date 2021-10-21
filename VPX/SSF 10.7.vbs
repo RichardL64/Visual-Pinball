@@ -7,7 +7,7 @@
 '
 '	Enhanced surround mix functions to permit pan and fade curve selection
 '	Intelligent xpos, ypos functions to find the location of any object
-'	Include JPS Ball rolling routines factored out parameter constants
+'	Include JP's Ball rolling & Rothbauerw's routines factored out parameter constants
 '
 '	To use:
 '
@@ -44,7 +44,7 @@ Audio_Rolling_Balls = 5
 '	Multiplier for the ball rolling sound volume
 '
 Dim Audio_Rolling_Vol
-Audio_Rolling_Vol = 0.1
+Audio_Rolling_Vol = 1
 
 
 '	Audio Rate is the power to use on the curve: 2 gives smooth transition
@@ -115,6 +115,10 @@ Sub PlaySoundAt(sound, tableobj)
 	PlaySound sound, 1, 1, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
 End Sub
 
+Sub PlayExistingSoundAt(sound, tableobj)
+	PlaySound sound, 1, 1, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
+End Sub
+
 '	Per object adjust volume
 Sub PlaySoundAtVol(sound, tableobj, Vol)
 	PlaySound sound, 1, Vol, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
@@ -145,6 +149,10 @@ Sub PlaySoundAtBall(sound, ball)
 	PlaySound sound, 0, BallVol(ball), AudioPan(ball), 0, BallPitch(ball), 0, 0, AudioFade(ball)
 End Sub
 
+Sub PlaySoundAtBallVol(sound, ball, VolMult)
+	PlaySound sound, 0, BallVol(ball) * VolMult, AudioPan(ball), 0, BallPitch(ball), 0, 0, AudioFade(ball)
+End Sub
+
 Sub PlayExistingSoundAtBall(sound, ball)
 	PlaySound sound, 0, BallVol(ball), AudioPan(ball), 0, BallPitch(ball), 1, 0, AudioFade(ball)
 End Sub
@@ -159,6 +167,32 @@ End Sub
 '*****************************************
 '      JP's VP10 Rolling Sounds
 '*****************************************
+
+'************************************
+' What you need to add to your table
+'************************************
+
+' a timer called RollingTimer. With a fast interval, like 10
+' one collision sound, in this script is called fx_collide
+' as many sound files as max number of balls, with names ending with 0, 1, 2, 3, etc
+' for ex. as used in this script: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
+
+
+'******************************************
+' Explanation of the rolling sound routine
+'******************************************
+
+' sounds are played based on the ball speed and position
+
+' the routine checks first for deleted balls and stops the rolling sound.
+
+' The For loop goes through all the balls on the table and checks for the ball speed and 
+' if the ball is on the table (height lower than 30) then then it plays the sound
+' otherwise the sound is stopped, like when the ball has stopped or is on a ramp or flying.
+
+' The sound is played using the VOL, PAN and PITCH functions, so the volume and pitch of the sound
+' will change according to the ball speed, and the PAN function will change the stereo position according
+' to the position of the ball on the table.
 
 ReDim rolling(Audio_Rolling_Balls)
 InitRolling
@@ -194,15 +228,23 @@ Sub RollingTimer_Timer()
                 rolling(b) = False
             End If
         End If
+       ' rothbauerw's Dropping Sounds
+        If BOT(b).VelZ <-1 and BOT(b).z <55 and BOT(b).z> 27 Then 'height adjust for ball drop sounds
+            PlaySound "fx_balldrop", 0, ABS(BOT(b).velz) / 17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+        End If
     Next
 End Sub
 
 '**********************
 ' Ball Collision Sound
-'**********************
+'
+' The collision is built in VP.
+' You only need to add a Sub OnBallBallCollision(ball1, ball2, velocity) and when two balls collide they 
+' will call this routine. What you add in the sub is up to you. As an example is a simple Playsound with volume and paning
+' depending of the speed of the collision.
 
 Sub OnBallBallCollision(ball1, ball2, velocity)
-		PlaySound("fx_collide"), 0, Csng(velocity) ^2 / 2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
+	PlaySound("fx_collide"), 0, Csng(velocity) ^2 / 2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
 End Sub
 
 '**********************************************************************************************************
