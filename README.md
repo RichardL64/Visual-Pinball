@@ -3,7 +3,7 @@ Visual pinball & associated software mods/scripts settings.
 
 PinballY
   - Autoff.js Automatic system shutdown after a period of inactivity in screensaver mode
-  - Era.js    Selection of table era filters using magnasave buttons (planned)
+  - Era.js    Cycle through era/year filters with the magnasave buttons
 
 VPX
   - SSF 10.7.vbs
