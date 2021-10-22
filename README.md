@@ -1,5 +1,5 @@
 # Visual-Pinball
-Visual pinball & associated software mods/scripts settings.
+Visual pinball & associated software, my mods/scripts settings.
 
 PinballY
   - Autoff.js Automatic system shutdown after a period of inactivity in screensaver mode
