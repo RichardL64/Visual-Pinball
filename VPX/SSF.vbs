@@ -14,6 +14,7 @@
 '	On Error Resume Next
 '	ExecuteGlobal GetTextFile("SSF 10.7.vbs")
 '	If Err Then MsgBox "SSF.vbs missing"
+'	Set ActiveTable = x					' For earlier than 10.7 where the active table is not table1
 '	On Error Goto 0
 '
 '
@@ -33,9 +34,20 @@
 '	R.Lincoln	June 2021	Add in standard ball functions & intelligent xpos/ypos
 '	R.Lincoln	July 2021	Use vpx 10.7 and later ActiveTable object
 '	R.Lincoln	October 2021	Add Vol param variously and include JPS ball rolling routine
+'	R.Lincoln	October 2021	Support versions <10.7 by setting up ActiveTable pointer
 '
 '**********************************************************************************************************
 
+'	ActiveTable is only available after 10.7
+'	Assumes table1, can be overridden for tables with different names
+'
+If Version < 10700 Then
+	Dim ActiveTable
+	on error resume next
+	Set ActiveTable = table1	' Not always correct, but works for most tables
+	on error goto 0
+End If
+	
 '	Maximum number of balls for ball rolling sounds
 '
 Dim Audio_Rolling_Balls
