@@ -7,9 +7,7 @@ PinballY
 
 VPX
   - SSF 10.7.vbs
-    - Standardise SSF code and make conversion/upgrade of tables easier
-    - Common existing code like JP's ball rolling in one place
+    - Automatically make PlaySoundAt work with objects that don't have .x , .y properties
     - Factor surround sound SSF into a separate scripts file
-    - Abstract away objects that don't have .x , .y properties automatically so simple PlaySoundAt works on any object type
-    - Use Objext .x, .y, if not available use the ball position, if not avaialble play from the table centre
-  
+    - Standardise SSF code and make conversion/upgrade of tables easier (for me) 
+    - Common existing code like JP's ball rolling in one place  
