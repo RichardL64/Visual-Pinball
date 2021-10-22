@@ -21,12 +21,14 @@
 '	Functions:
 '
 '	Sub PlaySoundAt(sound, tableobj)			' Play the sound once at the object, or ball if object doesn't have .x,.y
+'	Sub PlayExistingSoundAt(sound, tableobj)		' " + Use the existing sound
 '	Sub PlaySoundAtVol(sound, tableobj, Vol)		' " + specify volume 0-1
 '	Sub PlaySoundAtRPitch(sound, tableobj, RPitch)		' " + specify random pitch 0-1
 '
 '	Sub PlaySoundAtBall(sound, ball)			' Play the sound once at the ball, speed affects volume/pitch
-'	Sub PlayExistingSoundAtBall(sound, ball)		' 	" + uses the existing sound
-'	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
+'	Sub PlaySoundAtBallVol(sound, ball, VolMult)		' " + volume 0-1
+'	Sub PlayExistingSoundAtBall(sound, ball)		' " + uses the existing sound
+'	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' " + specify volume multiplier
 '
 '	Change log
 '	----------
