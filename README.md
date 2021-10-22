@@ -6,7 +6,7 @@ PinballY
   - Era.js    Cycle through era/year filters with the magnasave buttons
 
 VPX
-  - SSF 10.7.vbs
+  - SSF.vbs
     - Automatically make PlaySoundAt work with objects that don't have .x , .y properties
     - Factor surround sound SSF into a separate scripts file
     - Standardise SSF code and make conversion/upgrade of tables easier (for me) 
