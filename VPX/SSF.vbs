@@ -12,7 +12,7 @@
 '	To use:
 '
 '	On Error Resume Next
-'	ExecuteGlobal GetTextFile("SSF 10.7.vbs")
+'	ExecuteGlobal GetTextFile("SSF.vbs")
 '	If Err Then MsgBox "SSF.vbs missing"
 '	Set ActiveTable = x					' For earlier than 10.7 where the active table is not table1
 '	On Error Goto 0
@@ -22,11 +22,11 @@
 '
 '	Sub PlaySoundAt(sound, tableobj)			' Play the sound once at the object, or ball if object doesn't have .x,.y
 '	Sub PlaySoundAtVol(sound, tableobj, Vol)		' " + specify volume 0-1
-'	Sub PlaySoundAtRPitch(sound, tableobj, RPitch)	' " + specify random pitch 0-1
+'	Sub PlaySoundAtRPitch(sound, tableobj, RPitch)		' " + specify random pitch 0-1
 '
 '	Sub PlaySoundAtBall(sound, ball)			' Play the sound once at the ball, speed affects volume/pitch
 '	Sub PlayExistingSoundAtBall(sound, ball)		' 	" + uses the existing sound
-'	Sub PlayExistingSoundAtBallVol(sound, VolMult)	' 	" + specify volume multiplier
+'	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
 '
 '	Change log
 '	----------
@@ -44,7 +44,7 @@
 If Version < 10700 Then
 	Dim ActiveTable
 	on error resume next
-	Set ActiveTable = table1	' Not always correct, but works for most tables
+	Set ActiveTable = table1
 	on error goto 0
 End If
 	
@@ -175,86 +175,76 @@ End Sub
 
 
 '**********************************************************************************************************
-
-'*****************************************
+'
 '      JP's VP10 Rolling Sounds
-'*****************************************
+'
 
-'************************************
-' What you need to add to your table
-'************************************
-
-' a timer called RollingTimer. With a fast interval, like 10
-' one collision sound, in this script is called fx_collide
-' as many sound files as max number of balls, with names ending with 0, 1, 2, 3, etc
-' for ex. as used in this script: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
+' Requirements
+'
+' A timer called RollingTimer. With a fast interval, like 10
+' One collision sound, in this script is called fx_collide
+' As many sound files as max number of balls: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
 
 
-'******************************************
-' Explanation of the rolling sound routine
-'******************************************
-
-' sounds are played based on the ball speed and position
-
-' the routine checks first for deleted balls and stops the rolling sound.
-
+' Sounds are played based on the ball speed and position
+' The routine checks first for deleted balls and stops the rolling sound.
+'
 ' The For loop goes through all the balls on the table and checks for the ball speed and 
 ' if the ball is on the table (height lower than 30) then then it plays the sound
 ' otherwise the sound is stopped, like when the ball has stopped or is on a ramp or flying.
-
+'
 ' The sound is played using the VOL, PAN and PITCH functions, so the volume and pitch of the sound
 ' will change according to the ball speed, and the PAN function will change the stereo position according
 ' to the position of the ball on the table.
-
+'
 ReDim rolling(Audio_Rolling_Balls)
 InitRolling
 
 Sub InitRolling
-    Dim i
-    For i = 0 to UBound(rolling)
-        rolling(i) = False
-    Next
+    	Dim i
+    	For i = 0 to UBound(rolling)
+        	rolling(i) = False
+ 	Next
 End Sub
 
 Sub RollingTimer_Timer()
-    Dim BOT, b
-    BOT = GetBalls
+	Dim BOT, b
+	BOT = GetBalls
 
-	' stop the sound of deleted balls
-    For b = UBound(BOT) + 1 to UBound(rolling)
-        rolling(b) = False
-        StopSound("fx_ballrolling" & b)
-    Next
+	' Stop the sound of deleted balls
+	For b = UBound(BOT) + 1 to UBound(rolling)
+		rolling(b) = False
+		StopSound("fx_ballrolling" & b)
+    	Next
 
-	' exit the sub if no balls on the table
-    If UBound(BOT) = -1 Then Exit Sub
+	' Exit the sub if no balls on the table
+	If UBound(BOT) = -1 Then Exit Sub
 
-	' play the rolling sound for each ball
-    For b = 0 to UBound(BOT)
-        If BallVel(BOT(b) ) > 1 AND BOT(b).z < 30 Then
-            rolling(b) = True
-            PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b))* Audio_Rolling_Vol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
-        Else
-            If rolling(b) = True Then
-                StopSound("fx_ballrolling" & b)
-                rolling(b) = False
-            End If
-        End If
-       ' rothbauerw's Dropping Sounds
-        If BOT(b).VelZ <-1 and BOT(b).z <55 and BOT(b).z> 27 Then 'height adjust for ball drop sounds
-            PlaySound "fx_balldrop", 0, ABS(BOT(b).velz) / 17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
-        End If
-    Next
+	' Play the rolling sound for each ball
+	For b = 0 to UBound(BOT)
+		If BallVel(BOT(b) ) > 1 AND BOT(b).z < 30 Then
+			rolling(b) = True
+			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b))*Audio_Rolling_Vol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+		Else
+			If rolling(b) = True Then
+				StopSound("fx_ballrolling" & b)
+				rolling(b) = False
+			End If
+		End If
+
+		' Rothbauerw's dropping sounds
+		'
+		If BOT(b).VelZ < -1 and BOT(b).z < 55 and BOT(b).z > 27 Then	' Height adjust for ball drop sounds
+            		PlaySound "fx_balldrop", 0, ABS(BOT(b).velz) / 17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+        	End If
+	Next
 End Sub
 
-'**********************
-' Ball Collision Sound
-'
 ' The collision is built in VP.
 ' You only need to add a Sub OnBallBallCollision(ball1, ball2, velocity) and when two balls collide they 
 ' will call this routine. What you add in the sub is up to you. As an example is a simple Playsound with volume and paning
 ' depending of the speed of the collision.
-
+'
 Sub OnBallBallCollision(ball1, ball2, velocity)
 	PlaySound("fx_collide"), 0, Csng(velocity) ^2 / 2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
 End Sub
