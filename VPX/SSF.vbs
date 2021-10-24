@@ -92,7 +92,7 @@ End Function
 '
 Function xpos(tableobj)
 	on error resume next
-	xpos = sssTable.width /2
+	xpos = ssfTable.width /2
 	xpos = activeball.x
 	xpos = tableobj.x
 End Function
