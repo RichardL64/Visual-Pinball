@@ -14,21 +14,19 @@
 '	On Error Resume Next
 '	ExecuteGlobal GetTextFile("SSF.vbs")
 '	If Err Then MsgBox "SSF.vbs missing"
-'	Set ActiveTable = x					' For earlier than 10.7 where the active table is not table1
+'	Set ActiveTable = x					' Optional for earlier than 10.7 if the table is not table1
 '	On Error Goto 0
 '
 '
 '	Functions:
 '
 '	Sub PlaySoundAt(sound, tableobj)			' Play the sound once at the object, or ball if object doesn't have .x,.y
-'	Sub PlayExistingSoundAt(sound, tableobj)		' " + Use the existing sound
 '	Sub PlaySoundAtVol(sound, tableobj, Vol)		' " + specify volume 0-1
 '	Sub PlaySoundAtRPitch(sound, tableobj, RPitch)		' " + specify random pitch 0-1
 '
 '	Sub PlaySoundAtBall(sound, ball)			' Play the sound once at the ball, speed affects volume/pitch
-'	Sub PlaySoundAtBallVol(sound, ball, VolMult)		' " + volume 0-1
-'	Sub PlayExistingSoundAtBall(sound, ball)		' " + uses the existing sound
-'	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' " + specify volume multiplier
+'	Sub PlayExistingSoundAtBall(sound, ball)		' 	" + uses the existing sound
+'	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
 '
 '	Change log
 '	----------
@@ -39,29 +37,32 @@
 '	R.Lincoln	October 2021	Support versions <10.7 by setting up ActiveTable pointer
 '
 '**********************************************************************************************************
+option Explicit
 
 '	ActiveTable is only available after 10.7
 '	Assumes table1, can be overridden for tables with different names
 '
-If Version < 10700 Then
-	Dim ActiveTable
+Dim ssfTable
+If Version > 10700 Then
+	set ssfTable = ActiveTable
+else
 	on error resume next
-	Set ActiveTable = table1
+	set ssfTable = table1			' not always table1, so can override at the caller
 	on error goto 0
 End If
 	
 '	Maximum number of balls for ball rolling sounds
 '
-Dim Audio_Rolling_Balls
-Audio_Rolling_Balls = 5
+Dim ssfBalls
+ssfBalls = 5
 
 '	Multiplier for the ball rolling sound volume
 '
-Dim Audio_Rolling_Vol
-Audio_Rolling_Vol = 1
+Dim ssfRollingVol
+ssfRollingVol = 1
 
 
-'	Audio Rate is the power to use on the curve: 2 gives smooth transition
+'	Rate is the power to use on the curve: 2 gives smooth transition
 '		<1 	Prefers off centre:	-1 and +1 mix
 '		>1	prefers centre:		0 mix
 '
@@ -69,8 +70,8 @@ Audio_Rolling_Vol = 1
 '		2	Clear separation with smooth centre mix transition
 '	=>	10	Default on most existing table scripts very heavy centre mix
 '
-Dim Audio_Curve_Rate
-Audio_Curve_Rate = 10
+Dim ssfCurveRate
+ssfCurveRate = 10
 
 
 '**********************************************************************************************************
@@ -82,7 +83,7 @@ Audio_Curve_Rate = 10
 Function AudioCurve(range, position)
 	dim tmp
 	tmp = ((position *2) / range) -1
-	AudioCurve = sgn(tmp) * abs(tmp) ^Audio_Curve_Rate
+	AudioCurve = sgn(tmp) * abs(tmp) ^ssfCurveRate
 End Function
 
 '	Find the x/y position of an object
@@ -91,14 +92,14 @@ End Function
 '
 Function xpos(tableobj)
 	on error resume next
-	xpos = ActiveTable.width /2
+	xpos = sssTable.width /2
 	xpos = activeball.x
 	xpos = tableobj.x
 End Function
 
 Function ypos(tableobj)
 	on error resume next
-	ypos = ActiveTable.height /2
+	ypos = ssfTable.height /2
 	ypos = activeball.y
 	ypos = tableobj.y
 End Function
@@ -107,11 +108,11 @@ End Function
 '	Returns -1..0..1
 '
 Function AudioFade(tableobj)
-	AudioFade = AudioCurve(ActiveTable.height, ypos(tableobj))
+	AudioFade = AudioCurve(ssfTable.height, ypos(tableobj))
 End Function
 
 Function AudioPan(tableobj)
-	AudioPan = AudioCurve(ActiveTable.width, xpos(tableobj))
+	AudioPan = AudioCurve(ssfTable.width, xpos(tableobj))
 End Function
 
 
@@ -142,6 +143,9 @@ Sub PlaySoundAtRPitch(sound, tableobj, RPitch)
 	PlaySound sound, 1, 1, AudioPan(tableobj), RPitch, 0, 0, 1, AudioFade(tableobj)
 End Sub
 
+Sub PlayRepeatSoundAtVol(sound, tableobj, vol)
+	PlaySound sound, -1, vol, AudioPan(tableobj), RPitch, 0, 0, 1, AudioFade(tableobj)
+End Sub
 
 '	Ball location functions taking ball speed into account
 '
@@ -199,9 +203,9 @@ End Sub
 ' will change according to the ball speed, and the PAN function will change the stereo position according
 ' to the position of the ball on the table.
 '
-ReDim rolling(Audio_Rolling_Balls)
-InitRolling
+ReDim rolling(ssfBalls)
 
+'InitRolling			? Redundant ?
 Sub InitRolling
     	Dim i
     	For i = 0 to UBound(rolling)
@@ -226,7 +230,7 @@ Sub RollingTimer_Timer()
 	For b = 0 to UBound(BOT)
 		If BallVel(BOT(b) ) > 1 AND BOT(b).z < 30 Then
 			rolling(b) = True
-			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b))*Audio_Rolling_Vol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b))*ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
 		Else
 			If rolling(b) = True Then
 				StopSound("fx_ballrolling" & b)
