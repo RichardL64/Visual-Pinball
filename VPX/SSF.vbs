@@ -55,7 +55,7 @@ End If
 '	Maximum number of balls for ball rolling sounds
 '
 Dim ssfBalls
-ssfBalls = 5
+ssfBalls = 7
 
 '	Multiplier for the ball rolling sound volume
 '
