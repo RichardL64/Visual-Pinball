@@ -21,6 +21,7 @@ const myFilters = [
 
 
 //	On loading set the default filter
+//	..and sync up the myFilter number with the current filter
 //
 let myFilter = 5;
 setFilter(myFilter);
