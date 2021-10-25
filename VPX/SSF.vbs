@@ -59,7 +59,7 @@ ssfBalls = 5
 '	Multiplier for the ball rolling sound volume
 '
 Dim ssfRollingVol
-ssfRollingVol = 0.5
+ssfRollingVol = 1
 
 
 '	Rate is the power to use on the curve: 2 gives smooth transition
