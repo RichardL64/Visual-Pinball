@@ -14,7 +14,7 @@
 '	On Error Resume Next
 '	ExecuteGlobal GetTextFile("SSF.vbs")
 '	If Err Then MsgBox "SSF.vbs missing"
-'	Set ActiveTable = x					' Optional for earlier than 10.7 if the table is not table1
+'	Set ssfTable = x					' Optional for earlier than 10.7 if the table is not table1
 '	On Error Goto 0
 '
 '
@@ -59,7 +59,7 @@ ssfBalls = 5
 '	Multiplier for the ball rolling sound volume
 '
 Dim ssfRollingVol
-ssfRollingVol = 1
+ssfRollingVol = 0.5
 
 
 '	Rate is the power to use on the curve: 2 gives smooth transition
@@ -71,7 +71,7 @@ ssfRollingVol = 1
 '	=>	10	Default on most existing table scripts very heavy centre mix
 '
 Dim ssfCurveRate
-ssfCurveRate = 10
+ssfCurveRate = 2
 
 
 '**********************************************************************************************************
