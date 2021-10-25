@@ -205,14 +205,6 @@ End Sub
 '
 ReDim rolling(ssfBalls)
 
-'InitRolling			? Redundant ?
-Sub InitRolling
-    	Dim i
-    	For i = 0 to UBound(rolling)
-        	rolling(i) = False
- 	Next
-End Sub
-
 Sub RollingTimer_Timer()
 	Dim BOT, b
 	BOT = GetBalls
