@@ -24,8 +24,8 @@
 '	Sub PlaySoundAtVol(sound, tableobj, Vol)		' " + specify volume 0-1
 '	Sub PlaySoundAtRPitch(sound, tableobj, RPitch)		' " + specify random pitch 0-1
 '
-'	Sub PlaySoundAtBall(sound, ball)			' Play the sound once at the ball, speed affects volume/pitch
-'	Sub PlayExistingSoundAtBall(sound, ball)		' 	" + uses the existing sound
+'	Sub PlaySoundAtBall(sound)				' Play the sound once at the activeball, speed affects volume/pitch
+'	Sub PlayExistingSoundAtBall(sound)			' 	" + uses the existing sound
 '	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
 '
 '	Change log
@@ -35,6 +35,7 @@
 '	R.Lincoln	July 2021	Use vpx 10.7 and later ActiveTable object
 '	R.Lincoln	October 2021	Add Vol param variously and include JPS ball rolling routine
 '	R.Lincoln	October 2021	Support versions <10.7 by setting up ActiveTable pointer
+'	R.Lincoln	October 2021	Amend ball rolling to include ramps
 '
 '**********************************************************************************************************
 option Explicit
@@ -144,7 +145,7 @@ Sub PlaySoundAtRPitch(sound, tableobj, RPitch)
 End Sub
 
 Sub PlayRepeatSoundAtVol(sound, tableobj, vol)
-	PlaySound sound, -1, vol, AudioPan(tableobj), RPitch, 0, 0, 1, AudioFade(tableobj)
+	PlaySound sound, -1, vol, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
 End Sub
 
 '	Ball location functions taking ball speed into account
@@ -163,20 +164,20 @@ Function BallPitch(ball)
 	BallPitch = BallVel(ball) * 20
 End Function
 
-Sub PlaySoundAtBall(sound, ball)
-	PlaySound sound, 0, BallVol(ball), AudioPan(ball), 0, BallPitch(ball), 0, 0, AudioFade(ball)
+Sub PlaySoundAtBall(sound)
+	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 0, 0, AudioFade(ActiveBall)
 End Sub
 
-Sub PlaySoundAtBallVol(sound, ball, VolMult)
-	PlaySound sound, 0, BallVol(ball) * VolMult, AudioPan(ball), 0, BallPitch(ball), 0, 0, AudioFade(ball)
+Sub PlaySoundAtBallVol(sound, VolMult)
+	PlaySound sound, 0, BallVol(ActiveBall) * VolMult, AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 0, 0, AudioFade(ActiveBall)
 End Sub
 
-Sub PlayExistingSoundAtBall(sound, ball)
-	PlaySound sound, 0, BallVol(ball), AudioPan(ball), 0, BallPitch(ball), 1, 0, AudioFade(ball)
+Sub PlayExistingSoundAtBall(sound)
+	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 1, 0, AudioFade(ActiveBall)
 End Sub
 
-Sub PlayExistingSoundAtBallVol(sound, ball, VolMult)
-	PlaySound sound, 0, BallVol(ball) * VolMult, AudioPan(ball), 0, BallPitch(ball), 1, 0, AudioFade(ball)
+Sub PlayExistingSoundAtBallVol(sound, VolMult)
+	PlaySound sound, 0, BallVol(ActiveBall) * VolMult, AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 1, 0, AudioFade(ActiveBall)
 End Sub
 
 
@@ -220,10 +221,15 @@ Sub RollingTimer_Timer()
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
-		If BallVel(BOT(b) ) > 1 AND BOT(b).z < 30 Then
+		If BallVel(BOT(b) ) > 1 Then	' Moving ball
 			rolling(b) = True
-			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b))*ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
-		Else
+		        if BOT(b).z < 30 Then 	' ..on playfield
+          			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+		        Else 			' ..on raised ramp
+ 				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *.5*ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b))+50000, 1, 0, AudioFade(BOT(b))
+			End If
+
+		Else				' Not moving
 			If rolling(b) = True Then
 				StopSound("fx_ballrolling" & b)
 				rolling(b) = False
