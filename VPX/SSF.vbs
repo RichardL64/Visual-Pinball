@@ -156,7 +156,7 @@ Function BallVel(ball)
 End Function
 
 Function BallVol(ball)
-	BallVol = BallVel(ball) ^2 / 500
+	BallVol = BallVel(ball) ^2 / 2000
 End Function
 
 Function BallPitch(ball)
