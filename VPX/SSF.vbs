@@ -36,6 +36,7 @@
 '	R.Lincoln	October 2021	Add Vol param variously and include JPS ball rolling routine
 '	R.Lincoln	October 2021	Support versions <10.7 by setting up ActiveTable pointer
 '	R.Lincoln	October 2021	Amend ball rolling to include ramps
+'	R.Lincoln	October 2021	Add x,y independent sound curves
 '
 '**********************************************************************************************************
 option Explicit
@@ -43,7 +44,7 @@ option Explicit
 '	ActiveTable is only available after 10.7
 '	Assumes table1, can be overridden for tables with different names
 '
-Dim ssfTable
+Dim ssfTable, ssfTableWidth, ssfTableHeight, ssfTableXCentre, ssfTableYCentre
 If Version > 10700 Then
 	set ssfTable = ActiveTable
 else
@@ -51,19 +52,25 @@ else
 	set ssfTable = table1			' not always table1, so can override at the caller
 	on error goto 0
 End If
-	
+
+ssfTableWidth = ssfTable.Width			' pre calc to speed things up later
+ssfTableHeight = ssfTable.Height
+ssfTableXCentre = ssfTableWidth /2
+ssfTableYCentre = ssfTableHeight /2
+
 '	Maximum number of balls for ball rolling sounds
 '
 Dim ssfBalls
 ssfBalls = 7
 
 '	Multiplier for the ball rolling sound volume
+'	Some tables are strangely loud - so allows overriding later
 '
 Dim ssfRollingVol
 ssfRollingVol = 1
 
 
-'	Rate is the power to use on the curve: 2 gives smooth transition
+'	Rate is the power to use on the sound curve: 2 gives smooth transition
 '		<1 	Prefers off centre:	-1 and +1 mix
 '		>1	prefers centre:		0 mix
 '
@@ -71,8 +78,9 @@ ssfRollingVol = 1
 '		2	Clear separation with smooth centre mix transition
 '	=>	10	Default on most existing table scripts very heavy centre mix
 '
-Dim ssfCurveRate
-ssfCurveRate = 2
+Dim ssfCurveRateX, ssfCurveRateY
+ssfCurveRateX = 2
+ssfCurveRateY = 1
 
 
 '**********************************************************************************************************
@@ -81,10 +89,10 @@ ssfCurveRate = 2
 '	Plot position on an exponential curve against range
 '	Returns -1..0..+1
 '
-Function AudioCurve(range, position)
+Function AudioCurve(range, position, rate)
 	dim tmp
 	tmp = ((position *2) / range) -1
-	AudioCurve = sgn(tmp) * abs(tmp) ^ssfCurveRate
+	AudioCurve = sgn(tmp) * abs(tmp) ^rate
 End Function
 
 '	Find the x/y position of an object
@@ -93,14 +101,14 @@ End Function
 '
 Function xpos(tableobj)
 	on error resume next
-	xpos = ssfTable.width /2
+	xpos = ssfTableXCentre
 	xpos = activeball.x
 	xpos = tableobj.x
 End Function
 
 Function ypos(tableobj)
 	on error resume next
-	ypos = ssfTable.height /2
+	ypos = ssfTableYCentre
 	ypos = activeball.y
 	ypos = tableobj.y
 End Function
@@ -109,11 +117,11 @@ End Function
 '	Returns -1..0..1
 '
 Function AudioFade(tableobj)
-	AudioFade = AudioCurve(ssfTable.height, ypos(tableobj))
+	AudioFade = AudioCurve(ssfTableHeight, ypos(tableobj), ssfCurveRateY)
 End Function
 
 Function AudioPan(tableobj)
-	AudioPan = AudioCurve(ssfTable.width, xpos(tableobj))
+	AudioPan = AudioCurve(ssfTableWidth, xpos(tableobj), ssfCurveRateX)
 End Function
 
 
@@ -157,11 +165,11 @@ Function BallVel(ball)
 End Function
 
 Function BallVol(ball)
-	BallVol = BallVel(ball) ^2 / 2000
+	BallVol = BallVel(ball) ^2 /2000
 End Function
 
 Function BallPitch(ball)
-	BallPitch = BallVel(ball) * 20
+	BallPitch = BallVel(ball) *20
 End Function
 
 Sub PlaySoundAtBall(sound)
@@ -221,12 +229,12 @@ Sub RollingTimer_Timer()
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
-		If BallVel(BOT(b) ) > 1 Then	' Moving ball
+		If BallVel(BOT(b)) > 1 Then	' Moving ball
 			rolling(b) = True
 		        if BOT(b).z < 30 Then 	' ..on playfield
           			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
 		        Else 			' ..on raised ramp
- 				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *.5*ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b))+50000, 1, 0, AudioFade(BOT(b))
+				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol /2, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +50000, 1, 0, AudioFade(BOT(b))
 			End If
 
 		Else				' Not moving
@@ -239,7 +247,7 @@ Sub RollingTimer_Timer()
 		' Rothbauerw's dropping sounds
 		'
 		If BOT(b).VelZ < -1 and BOT(b).z < 55 and BOT(b).z > 27 Then	' Height adjust for ball drop sounds
-            		PlaySound "fx_balldrop", 0, ABS(BOT(b).velz) / 17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+            		PlaySound "fx_balldrop", 0, abs(BOT(b).velz) /17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
         	End If
 	Next
 End Sub
@@ -250,7 +258,7 @@ End Sub
 ' depending of the speed of the collision.
 '
 Sub OnBallBallCollision(ball1, ball2, velocity)
-	PlaySound("fx_collide"), 0, Csng(velocity) ^2 / 2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
+	PlaySound("fx_collide"), 0, velocity ^2 /2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
 End Sub
 
 '**********************************************************************************************************
