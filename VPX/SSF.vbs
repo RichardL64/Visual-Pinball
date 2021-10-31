@@ -41,10 +41,11 @@
 '**********************************************************************************************************
 option Explicit
 
+
 '	ActiveTable is only available after 10.7
 '	Assumes table1, can be overridden for tables with different names
 '
-Dim ssfTable, ssfTableWidth, ssfTableHeight, ssfTableXCentre, ssfTableYCentre
+Dim ssfTable
 If Version > 10700 Then
 	set ssfTable = ActiveTable
 else
@@ -53,15 +54,10 @@ else
 	on error goto 0
 End If
 
-ssfTableWidth = ssfTable.Width			' pre calc to speed things up later
-ssfTableHeight = ssfTable.Height
-ssfTableXCentre = ssfTableWidth /2
-ssfTableYCentre = ssfTableHeight /2
-
 '	Maximum number of balls for ball rolling sounds
 '
 Dim ssfBalls
-ssfBalls = 7
+ssfBalls = 5
 
 '	Multiplier for the ball rolling sound volume
 '	Some tables are strangely loud - so allows overriding later
@@ -83,6 +79,7 @@ ssfCurveRateX = 2
 ssfCurveRateY = 1
 
 
+
 '**********************************************************************************************************
 
 
@@ -91,24 +88,21 @@ ssfCurveRateY = 1
 '
 Function AudioCurve(range, position, rate)
 	dim tmp
-	tmp = ((position *2) / range) -1
+	tmp = (position *2 / range) -1
 	AudioCurve = sgn(tmp) * abs(tmp) ^rate
 End Function
 
 '	Find the x/y position of an object
 '	If it doesn't have position methods use the ball position
-'	If I can't find the ball position use the table centre
 '
 Function xpos(tableobj)
 	on error resume next
-	xpos = ssfTableXCentre
 	xpos = activeball.x
 	xpos = tableobj.x
 End Function
 
 Function ypos(tableobj)
 	on error resume next
-	ypos = ssfTableYCentre
 	ypos = activeball.y
 	ypos = tableobj.y
 End Function
@@ -117,11 +111,11 @@ End Function
 '	Returns -1..0..1
 '
 Function AudioFade(tableobj)
-	AudioFade = AudioCurve(ssfTableHeight, ypos(tableobj), ssfCurveRateY)
+	AudioFade = AudioCurve(ssfTable.Height, ypos(tableobj), ssfCurveRateY)
 End Function
 
 Function AudioPan(tableobj)
-	AudioPan = AudioCurve(ssfTableWidth, xpos(tableobj), ssfCurveRateX)
+	AudioPan = AudioCurve(ssfTable.Width, xpos(tableobj), ssfCurveRateX)
 End Function
 
 
@@ -156,6 +150,7 @@ Sub PlayRepeatSoundAtVol(sound, tableobj, vol)
 	PlaySound sound, -1, vol, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
 End Sub
 
+
 '	Ball location functions taking ball speed into account
 '
 '	Useexisting on/off, restart off
@@ -165,7 +160,7 @@ Function BallVel(ball)
 End Function
 
 Function BallVol(ball)
-	BallVol = BallVel(ball) ^2 /2000
+	BallVol = BallVel(ball) ^3 /2000
 End Function
 
 Function BallPitch(ball)
@@ -178,6 +173,14 @@ End Sub
 
 Sub PlaySoundAtBallVol(sound, VolMult)
 	PlaySound sound, 0, BallVol(ActiveBall) * VolMult, AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 0, 0, AudioFade(ActiveBall)
+End Sub
+
+Sub PlaySoundAtBallPitch(sound, pitch)
+	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, pitch, 0, 0, AudioFade(ActiveBall)
+End Sub
+
+Sub PlaySoundAtBallVolPitch(sound, volMult, pitch)
+	PlaySound sound, 0, BallVol(ActiveBall) * volMult, AudioPan(ActiveBall), 0, pitch, 0, 0, AudioFade(ActiveBall)
 End Sub
 
 Sub PlayExistingSoundAtBall(sound)
@@ -220,8 +223,10 @@ Sub RollingTimer_Timer()
 
 	' Stop the sound of deleted balls
 	For b = UBound(BOT) + 1 to UBound(rolling)
-		rolling(b) = False
-		StopSound("fx_ballrolling" & b)
+		If rolling(b) = True Then
+			rolling(b) = False
+			StopSound("fx_ballrolling" & b)
+		End If
     	Next
 
 	' Exit the sub if no balls on the table
@@ -234,13 +239,13 @@ Sub RollingTimer_Timer()
 		        if BOT(b).z < 30 Then 	' ..on playfield
           			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
 		        Else 			' ..on raised ramp
-				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol /2, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +50000, 1, 0, AudioFade(BOT(b))
+				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +30000, 1, 0, AudioFade(BOT(b))
 			End If
 
 		Else				' Not moving
 			If rolling(b) = True Then
-				StopSound("fx_ballrolling" & b)
 				rolling(b) = False
+				StopSound("fx_ballrolling" & b)
 			End If
 		End If
 
