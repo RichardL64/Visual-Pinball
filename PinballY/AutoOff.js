@@ -46,8 +46,8 @@ function myPOTick() {
 
 //	Setup callback hooks
 //
-logfile.log("[PowerOff] Initialised");
 mainWindow.on("attractmodestart", myAttractStart);
 mainWindow.on("attractmodeend", myAttractEnd);
+logfile.log("[PowerOff] Initialised");
 
 //	End
