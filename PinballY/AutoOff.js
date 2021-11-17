@@ -13,7 +13,7 @@ let myPOStatus = mainWindow.statusLines.attract;
 //	Entering attract mode - start the timer, add a countdown status line
 //
 function myAttractStart(ev) {
-	logfile.log("[PowerOff] Start id %d", myPOInterval);
+	logfile.log("[AutoOff] Start id %d", myPOInterval);
 
 	myPOToGo = myPOMinutes;
 	myPOTick();
@@ -23,7 +23,7 @@ function myAttractStart(ev) {
 //	Leaving attract mode - stop the timer, remove the countdown message
 //
 function myAttractEnd(ev) {
-	logfile.log("[PowerOff] End id %d", myPOInterval);
+	logfile.log("[AutoOff] End id %d", myPOInterval);
 
 	clearInterval(myPOInterval);
 }
@@ -32,12 +32,12 @@ function myAttractEnd(ev) {
 //	Countdown - if !0 - update message, else power off
 //
 function myPOTick() {
-	logfile.log("[PowerOff] Tick togo %d", myPOToGo);
+	logfile.log("[AutoOff] Tick togo %d", myPOToGo);
 
 	if (myPOToGo > 0) {
 		myPOStatus.setText(0, "Auto power off in " + myPOToGo + " minutes");
 	} else {
-		logfile.log("[PowerOff] Powering off");
+		logfile.log("[AutoOff] Powering off");
 //		mainWindow.doCommand(command.Quit);			// uncomment for testing
 		mainWindow.doCommand(command.PowerOffConfirm);
 	};
@@ -48,6 +48,6 @@ function myPOTick() {
 //
 mainWindow.on("attractmodestart", myAttractStart);
 mainWindow.on("attractmodeend", myAttractEnd);
-logfile.log("[PowerOff] Initialised");
+logfile.log("[AutoOff] Initialised");
 
 //	End
