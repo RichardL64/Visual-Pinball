@@ -53,5 +53,6 @@ function setFilter(filter) {
 //	Setup the main window keypress hook
 //
 mainWindow.on("keyup", myKeyUp);
+logfile.log("[Filter] Initialised");
 
 //  End
