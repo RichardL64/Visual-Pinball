@@ -75,7 +75,7 @@ function speed() {
 function spinWheel() {
 //	logfile.log("[Spin] Spin @%d", mySpin);
 
-	gameList.setWheelGame(1, {animate: false, fast: true});		// Spin the game wheel 1 game
+	gameList.setWheelGame(1, {animate: true, fast: false});		// Spin the game wheel 1 game, smoothly
 
 	mySpin = mySpin *myDeccel -myFriction				// Slow the wheel
 	if (mySpin >1) {
