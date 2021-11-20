@@ -89,7 +89,7 @@ function spinWheel() {
 //
 function preLaunch(ev) {
 	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
-	if (Date.now() - myReleaseTime < 500) {
+	if (Date.now() - myReleaseTime < myLaunchDelay) {
 		logfile.log("[Spin] Launch prevented");
 		ev.preventDefault();
 	}
