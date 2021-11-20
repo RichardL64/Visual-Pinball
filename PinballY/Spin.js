@@ -88,7 +88,7 @@ function spinWheel() {
 //	i.e. the plunger hit it rather than the player pressing it
 //
 function preLaunch(ev) {
-	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
+//	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
 	if (Date.now() - myReleaseTime < myLaunchDelay) {
 		logfile.log("[Spin] Launch prevented");
 		ev.preventDefault();
