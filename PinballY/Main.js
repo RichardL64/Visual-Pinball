@@ -6,5 +6,6 @@
 
 import "AutoOff.js";
 import "Filter.js";
+import "Spin.js";
 
 //  End
