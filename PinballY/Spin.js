@@ -7,9 +7,9 @@
 //	R.Lincoln		November 2021		Creation
 //
 
-const mySlow = 0.3;					// speed rate threshold fast vs. slow
-const myDeccel = 0.9;					// multiplier to slow the wheel spin speed
-const myFriction = 0.5;					// subtracted from wheel spin
+const mySlow = 0.4;					// speed rate threshold fast vs. slow
+const myDeccel = 0.95;					// multiplier to slow the wheel spin speed
+const myFriction = 0.4;					// subtracted from wheel spin
 const myLaunchDelay = 1000;				// milliseconds to wait between plunger release and game launch
 
 let myPos = 0;						// Plunger pull back position
@@ -19,7 +19,7 @@ let myReleaseTime = 0;					// Time the plunger was released
 //	Setup reading the plunger (joystick) position
 //
 let JS = mainWindow.getJoystickInfo(0);
-JS.setAxisRange("Z", 0, 50);				// pre-calc null zone to max frequency range
+JS.setAxisRange("Z", 0, 60);				// pre-calc null zone to max frequency range
 JS.enableAxisEvents({ axis: "Z" });			// generate Z axis events only
 logfile.log("[Spin] Product %s", JS.productName);
 
@@ -41,11 +41,10 @@ function joystickAxisChange(ev) {
 	if (Math.abs(s) < mySlow) {
 //		logfile.log("[Spin] Pullback @%d", myPos);
 		myPos = speed.lastZ;
-	}
 
 	// Fast -ve => released!
 	//
-	if (s < -mySlow) {
+	} else if ( s < 0 ) {
 //		logfile.log("[Spin] Release @%d", myPos);
 		myReleaseTime = speed.lastTime		// Used to trap unwanted launches
 		mySpin = myPos				// Start spin value = last pull back position
@@ -75,10 +74,12 @@ function speed() {
 function spinWheel() {
 //	logfile.log("[Spin] Spin @%d", mySpin);
 
-	gameList.setWheelGame(1, {animate: true, fast: false});		// Spin the game wheel 1 game, smoothly
+//	gameList.setWheelGame(1, {animate: true, fast: false});		// Spin the game wheel 1 game
+	mainWindow.doButtonCommand("Next", true, 0);			// Simulate button presses for sound effects
+	mainWindow.doButtonCommand("Next", false, 0);
 
 	mySpin = mySpin *myDeccel -myFriction				// Slow the wheel
-	if (mySpin >1) {
+	if (mySpin >1) {						// max 1 second to next stop
 		setTimeout(spinWheel, 1000 /mySpin)			// call myself based on spin frequency
 	}
 }
@@ -88,7 +89,7 @@ function spinWheel() {
 //	i.e. the plunger hit it rather than the player pressing it
 //
 function preLaunch(ev) {
-//	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
+	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
 	if (Date.now() - myReleaseTime < myLaunchDelay) {
 		logfile.log("[Spin] Launch prevented");
 		ev.preventDefault();
