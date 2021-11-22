@@ -7,7 +7,7 @@
 //	R.Lincoln		November 2021		Creation
 //
 
-const mySlow = 0.4;					// speed rate threshold fast vs. slow
+const mySlow = 0.25;					// speed rate threshold fast vs. slow
 const myDeccel = 0.95;					// multiplier to slow the wheel spin speed
 const myFriction = 0.4;					// subtracted from wheel spin
 const myLaunchDelay = 1000;				// milliseconds to wait between plunger release and game launch
