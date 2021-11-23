@@ -7,19 +7,19 @@
 //	R.Lincoln		November 2021		Creation
 //
 
-const mySlow = -0.25;					// speed rate threshold fast vs. slow
+const mySlow = -0.5;					// speed rate threshold fast vs. slow
 const myDecel = 0.95;					// multiplier to slow the wheel spin speed
 const myFriction = 0.4;					// subtracted from wheel spin
 const myLaunchDelay = 1000;				// milliseconds to wait between plunger release and game launch
 
 let myPos = 0;						// Plunger pull back position
 let mySpin = 0;						// Spin rate - games/second
-let myReleaseTime = 0;					// Time the plunger was released
+let myReleasedTime = 0;					// Time the plunger was last released
 
 //	Setup reading the plunger (joystick) position
 //
 let JS = mainWindow.getJoystickInfo(0);
-JS.setAxisRange("Z", 0, 60);				// pre-calc null zone to max frequency range
+JS.setAxisRange("Z", 0, 100);				// pre-calc null zone to max frequency range
 JS.enableAxisEvents({ axis: "Z" });			// generate Z axis events only
 logfile.log("[Spin] Product %s", JS.productName);
 
@@ -35,21 +35,23 @@ function joystickAxisChange(ev) {
 	if (Date.now() - speed.lastTime <10) return;	// Throw away calls closer than x milliseconds
 
 	let s = speed();				// How fast is the plunger moving?
+//	logfile.log("[Spin] Speed %f", speed.s);
 
-	// Slow pull => record position
+	// Slow pull/release => record position
 	//
 	if (s > mySlow) {
-//		logfile.log("[Spin] Pullback @%d", myPos);
 		myPos = speed.lastZ;
+	}
 
 	// Fast -ve => released!
 	//
-	} else {
-//		logfile.log("[Spin] Release @%d", myPos);
-		myReleaseTime = speed.lastTime		// Used to trap unwanted launches
-		mySpin = myPos				// Start spin value = last pull back position
-		spinWheel();				// Start it spinning
+	if (s < mySlow && myPos > 0) {
+		myReleasedTime = speed.lastTime;	// Try to prevent unwanted launches
+		mySpin = (myPos /10) **2		// Spring power = square of extension
+//		logfile.log("[Spin] Release s%f @%f => %f ", speed.s, myPos, mySpin);
 		myPos = 0;
+
+		spinWheel();				// Start it spinning
 	}
 }
 
@@ -60,11 +62,11 @@ function joystickAxisChange(ev) {
 function speed() {
 	let thisZ = JS.Z();
 	let thisTime = Date.now();
-	let s = (thisZ - speed.lastZ) / (thisTime - speed.lastTime);
+	speed.s = (thisZ - speed.lastZ) / (thisTime - speed.lastTime);
 	speed.lastZ = thisZ;
 	speed.lastTime = thisTime;
 
-	return s;
+	return speed.s;
 }
 
 //	Spin the wheel
@@ -85,13 +87,12 @@ function spinWheel() {
 }
 
 //	Prevent unwanted game launches
-//	If the plunger push switch closes too soon after a plunger release - ignore it
+//	If the plunger push switch closes too soon after a plunger movement - ignore it
 //	i.e. the plunger hit it rather than the player pressing it
 //
 function preLaunch(ev) {
-	logfile.log("[Spin] PreLaunch %d", Date.now() - myReleaseTime);
-	if (Date.now() - myReleaseTime < myLaunchDelay) {
-		logfile.log("[Spin] Launch prevented");
+	if (Date.now() - myReleasedTime < myLaunchDelay) {
+//		logfile.log("[Spin] Launch prevented %d", Date.now() - myReleasedTime);
 		ev.preventDefault();
 	}
 }
@@ -103,3 +104,4 @@ mainWindow.on("joystickaxischange", joystickAxisChange);
 mainWindow.on("prelaunch", preLaunch);
 logfile.log("[Spin] Initialised");
 
+//	End
