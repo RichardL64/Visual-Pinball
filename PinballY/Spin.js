@@ -7,8 +7,8 @@
 //	R.Lincoln		November 2021		Creation
 //
 
-const mySlow = 0.25;					// speed rate threshold fast vs. slow
-const myDeccel = 0.95;					// multiplier to slow the wheel spin speed
+const mySlow = -0.25;					// speed rate threshold fast vs. slow
+const myDecel = 0.95;					// multiplier to slow the wheel spin speed
 const myFriction = 0.4;					// subtracted from wheel spin
 const myLaunchDelay = 1000;				// milliseconds to wait between plunger release and game launch
 
@@ -36,15 +36,15 @@ function joystickAxisChange(ev) {
 
 	let s = speed();				// How fast is the plunger moving?
 
-	// Slow => record position
+	// Slow pull => record position
 	//
-	if (Math.abs(s) < mySlow) {
+	if (s > mySlow) {
 //		logfile.log("[Spin] Pullback @%d", myPos);
 		myPos = speed.lastZ;
 
 	// Fast -ve => released!
 	//
-	} else if ( s < 0 ) {
+	} else {
 //		logfile.log("[Spin] Release @%d", myPos);
 		myReleaseTime = speed.lastTime		// Used to trap unwanted launches
 		mySpin = myPos				// Start spin value = last pull back position
@@ -78,7 +78,7 @@ function spinWheel() {
 	mainWindow.doButtonCommand("Next", true, 0);			// Simulate button presses for sound effects
 	mainWindow.doButtonCommand("Next", false, 0);
 
-	mySpin = mySpin *myDeccel -myFriction				// Slow the wheel
+	mySpin = mySpin *myDecel -myFriction				// Slow the wheel
 	if (mySpin >1) {						// max 1 second to next stop
 		setTimeout(spinWheel, 1000 /mySpin)			// call myself based on spin frequency
 	}
@@ -103,4 +103,3 @@ mainWindow.on("joystickaxischange", joystickAxisChange);
 mainWindow.on("prelaunch", preLaunch);
 logfile.log("[Spin] Initialised");
 
-//	End
