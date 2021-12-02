@@ -1,5 +1,6 @@
 //
 //	AutoOff
+//	https://github.com/RichardL64
 //
 //	Automatic power off if no activity in attract mode
 //	R.Lincoln	Feb 2021
