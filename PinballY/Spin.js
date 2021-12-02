@@ -1,5 +1,6 @@
 //
 //	Spin
+//	https://github.com/RichardL64
 //
 //	Spin the wheel when the plunger is pulled and released
 //	Its worth turning off unneeded PBY logging otherwise during the spin it can generate a lot of text
