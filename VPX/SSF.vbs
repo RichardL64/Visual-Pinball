@@ -1,6 +1,7 @@
 '**********************************************************************************************************
 '
 '	SSF
+'	https://github.com/RichardL64
 '
 '	Factored and enhanced SSF routines
 '	Grouped related SSF functions into a single common script
