@@ -42,12 +42,13 @@ function joystickAxisChange(ev) {
 	//
 	if (s > mySlow) {
 		myPos = speed.lastZ;
+	} else {
+		myReleasedTime = speed.lastTime;	// Try to prevent unwanted launches
 	}
 
 	// Fast -ve => released!
 	//
 	if (s < mySlow && myPos > 0) {
-		myReleasedTime = speed.lastTime;	// Try to prevent unwanted launches
 		mySpin = (myPos /10) **2		// Spring power = square of extension
 //		logfile.log("[Spin] Release s%f @%f => %f ", speed.s, myPos, mySpin);
 		myPos = 0;
