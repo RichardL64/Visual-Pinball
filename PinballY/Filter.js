@@ -1,6 +1,5 @@
 //
 //  Filters
-//  https://github.com/RichardL64
 //
 //  Cycle through pre-defined filters with the magnasave buttons
 //
@@ -14,7 +13,11 @@ const myFilters = [
 	"All", 
 	"Manuf.Bally",
 	"Manuf.Data East",
+	"Manuf.Gottlieb",
+	"Manuf.Sega",
 	"Manuf.Williams",
+	"Manuf.Original",
+	"YearRange.1970.1979",
 	"YearRange.1980.1989",
 	"YearRange.1990.1999",
 	"YearRange.2000.9999"
@@ -23,7 +26,7 @@ const myFilters = [
 
 //	On loading set the default filter
 //
-let myFilter = 5;
+let myFilter = myFilters.indexOf("YearRange.1990.1999");
 setFilter(myFilter);
 
 //	Catch keypresses and inc/dec filter index
