@@ -2,10 +2,11 @@
 Visual pinball & associated software, my mods/scripts settings.
 
 PinballY
-  - Main.js     PinballY entry point invoking other scripts
-  - AutoOff.js  Automatic system shutdown after a period of inactivity in screensaver mode
-  - Filter.js   Use Magnasave buttons to cycle through an arbitrary list of filters
-  - Spin.js     Use the plunger to spin the game wheel like a wheel of fortune
+  - Main.js       PinballY entry point invoking other scripts
+  - AutoOff.js    Automatic system shutdown after a period of inactivity in screensaver mode
+  - Filter.js     Use Magnasave buttons to cycle through an arbitrary list of filters
+  - Spin.js       Use the plunger to spin the game wheel like a wheel of fortune
+  - LaunchFade.js Fade the preview playfield during game load
  
 
 VPX
