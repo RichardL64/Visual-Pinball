@@ -12,6 +12,8 @@
 //
 function myOverlayShow(ev) {
 	let video = gameList.resolveMedia("Videos","Launch.mp4" );
+	logfile.log("[LaunchVideo] Video file '%s'", video);
+	
 	mainWindow.launchOverlay.bg.loadVideo(video);
 	ev.preventDefault();
 }
