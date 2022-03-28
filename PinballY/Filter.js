@@ -15,6 +15,7 @@ const myFilters = [
 	"Manuf.Data East",
 	"Manuf.Gottlieb",
 	"Manuf.Sega",
+	"Manuf.Stern",
 	"Manuf.Williams",
 	"Manuf.Original",
 	"YearRange.1970.1979",
