@@ -4,6 +4,7 @@
 //	Fade out the screenshot while launching
 //
 //	R.Lincoln	April 2022	Creation
+//	R.Lincoln	April 2022	Cleanup - fade and message only
 //
 
 
@@ -11,22 +12,21 @@
 //	Fade out the table preview while loading
 //
 function myOverlayShow(ev) {
-	mainWindow.showWheel(false);
-	mainWindow.setUnderlay("");
-	mainWindow.launchOverlay.bg.clear(0xcc000000);		// ~80% fade to black
+	mainWindow.launchOverlay.bg.clear(0xcc000000);		// ~80% black
 	ev.preventDefault();
 }
 
-//	Overlay hide
+//	Overlay message
 //
-function myOverlayHide(ev) {
-	mainWindow.showWheel(true);
+function myOverlayMessage(ev) {
+	ev.hideWheelImage = true;
 }
+
 
 //	Setup the launch hook
 //
 mainWindow.on("launchoverlayshow", myOverlayShow);
-mainWindow.on("launchoverlayhide", myOverlayHide);
+mainWindow.on("launchoverlaymessage", myOverlayMessage);
 logfile.log("[LaunchFade] Initialised");
 
 //  End
