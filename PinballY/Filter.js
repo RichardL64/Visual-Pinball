@@ -1,8 +1,8 @@
 //
-//  Filter
+//  	Filter
 //	https://github.com/RichardL64
 //
-//  Cycle through pre-defined filters with the magnasave buttons
+//  	Cycle through pre-defined filters with the magnasave buttons
 //
 //	R.Lincoln	October 2021
 //
