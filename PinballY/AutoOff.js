@@ -37,12 +37,13 @@ function myPOTick() {
 
 	if (myPOToGo > 0) {
 		myPOStatus.setText(0, "Auto power off in " + myPOToGo + " minutes");
+		myPOToGo -= 1;
+
 	} else {
 		logfile.log("[AutoOff] Powering off");
 //		mainWindow.doCommand(command.Quit);			// uncomment for testing
 		mainWindow.doCommand(command.PowerOffConfirm);
 	};
-	myPOToGo -= 1;
 }
 
 //	Setup callback hooks
