@@ -1,13 +1,14 @@
 //
-//  Main.js
+//  	Main
+//	https://github.com/RichardL64
 //
-//  R.Lincoln   October 2021  Creation
+// 	R.Lincoln   October 2021
 //
 
 import "AutoOff.js";
 import "Filter.js";
 import "Spin.js";
 import "LaunchFade.js";
-//import "LaunchVideo.js";  // does not co-exist with LaunchFade
+//import "LaunchVideo.js";
 
 //  End

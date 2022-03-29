@@ -1,5 +1,5 @@
 //
-//  Filters
+//  Filter
 //	https://github.com/RichardL64
 //
 //  Cycle through pre-defined filters with the magnasave buttons

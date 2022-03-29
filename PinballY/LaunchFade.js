@@ -4,8 +4,7 @@
 //
 //	Fade out the screenshot while launching
 //
-//	R.Lincoln	April 2022	Creation
-//	R.Lincoln	April 2022	Cleanup - fade and message only
+//	R.Lincoln	April 2022
 //
 
 
