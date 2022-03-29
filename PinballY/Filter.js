@@ -1,10 +1,10 @@
 //
 //  Filters
+//	https://github.com/RichardL64
 //
 //  Cycle through pre-defined filters with the magnasave buttons
 //
-//	R.Lincoln	October 2021	Creation
-//	R.Lincoln	October 2021	Generalise/simplify to any filter, array driven
+//	R.Lincoln	October 2021
 //
 
 //	Array of filters to cycle through, can be any filter type
