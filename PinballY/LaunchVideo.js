@@ -1,5 +1,6 @@
 //
 //	LaunchVideo
+//	https://github.com/RichardL64
 //
 //	Play video during game launch
 //	Plays	../PinballY/Media/Videos/Launch.mp4
