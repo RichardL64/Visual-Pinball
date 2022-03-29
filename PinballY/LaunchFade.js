@@ -1,5 +1,6 @@
 //
 //	LaunchFade
+//	https://github.com/RichardL64
 //
 //	Fade out the screenshot while launching
 //
