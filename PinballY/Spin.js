@@ -5,7 +5,7 @@
 //	Spin the wheel when the plunger is pulled and released
 //	Its worth turning off unneeded PBY logging otherwise during the spin it can generate a lot of text
 //
-//	R.Lincoln		November 2021		Creation
+//	R.Lincoln		November 2021
 //
 
 const mySlow = -0.5;					// speed rate threshold fast vs. slow
