@@ -29,15 +29,7 @@
 '	Sub PlayExistingSoundAtBall(sound)			' 	" + uses the existing sound
 '	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
 '
-'	Change log
-'	----------
 '	R.Lincoln	April 2021	Creation
-'	R.Lincoln	June 2021	Add in standard ball functions & intelligent xpos/ypos
-'	R.Lincoln	July 2021	Use vpx 10.7 and later ActiveTable object
-'	R.Lincoln	October 2021	Add Vol param variously and include JPS ball rolling routine
-'	R.Lincoln	October 2021	Support versions <10.7 by setting up ActiveTable pointer
-'	R.Lincoln	October 2021	Amend ball rolling to include ramps
-'	R.Lincoln	October 2021	Add x,y independent sound curves
 '
 '**********************************************************************************************************
 option Explicit
@@ -235,15 +227,15 @@ Sub RollingTimer_Timer()
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
-		If BallVel(BOT(b)) > 1 Then	' Moving ball
+		If BallVel(BOT(b)) > 0 Then		' Moving ball
 			rolling(b) = True
-		        if BOT(b).z < 30 Then 	' ..on playfield
+			if BOT(b).z < ballSize Then 	' ..on playfield
           			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
-		        Else 			' ..on raised ramp
+		        Else 				' ..on raised ramp
 				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +30000, 1, 0, AudioFade(BOT(b))
 			End If
 
-		Else				' Not moving
+		Else					' Not moving
 			If rolling(b) = True Then
 				rolling(b) = False
 				StopSound("fx_ballrolling" & b)
