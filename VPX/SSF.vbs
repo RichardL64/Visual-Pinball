@@ -3,6 +3,8 @@
 '	SSF
 '	https://github.com/RichardL64
 '
+'	R.Lincoln	April 2021
+'
 '	Factored and enhanced SSF routines
 '	Grouped related SSF functions into a single common script
 '
@@ -29,7 +31,7 @@
 '	Sub PlayExistingSoundAtBall(sound)			' 	" + uses the existing sound
 '	Sub PlayExistingSoundAtBallVol(sound, VolMult)		' 	" + specify volume multiplier
 '
-'	R.Lincoln	April 2021	Creation
+'	R.Lincoln	April 2021
 '
 '**********************************************************************************************************
 option Explicit
@@ -39,13 +41,10 @@ option Explicit
 '	Assumes table1, can be overridden for tables with different names
 '
 Dim ssfTable
-If Version > 10700 Then
-	set ssfTable = ActiveTable
-else
-	on error resume next
-	set ssfTable = table1			' not always table1, so can override at the caller
-	on error goto 0
-End If
+on error resume next
+set ssfTable = ActiveTable			' should work under vpx 10.7 and later
+set ssfTable = table1				' not always so the caller can override
+on error goto 0
 
 '	Maximum number of balls for ball rolling sounds
 '
@@ -69,46 +68,67 @@ ssfRollingVol = 1
 '
 Dim ssfCurveRateX, ssfCurveRateY
 ssfCurveRateX = 2
-ssfCurveRateY = 1
+ssfCurveRateY = 3
 
+'	Playfield height to work out if the ball is on a ramp
+'
+Dim ssfPlayfieldOffset
+ssfPlayfieldOffset = 0
 
+'	Default randomise pitch a little for realism
+'
+Dim ssfRandomPitch
+ssfRandomPitch = 0.1
 
 '**********************************************************************************************************
+
+'
+'	Useful functions
+'
+function random(low, high)
+	random = int((high-low+1) * rnd + low)	
+End Function
+
+'	Choose a random suffix number for a sound
+'
+function choose(sound, low, high)
+	choose = sound & random(low, high)
+end function
 
 
 '	Plot position on an exponential curve against range
 '	Returns -1..0..+1
 '
-Function AudioCurve(range, position, rate)
+Function audioCurve(range, position, rate)
 	dim tmp
 	tmp = (position *2 / range) -1
-	AudioCurve = sgn(tmp) * abs(tmp) ^rate
+	audioCurve = sgn(tmp) * abs(tmp) ^rate
 End Function
 
 '	Find the x/y position of an object
 '	If it doesn't have position methods use the ball position
 '
-Function xpos(tableobj)
+Function xPos(tableobj)
 	on error resume next
-	xpos = activeball.x
-	xpos = tableobj.x
+	xPos = activeball.x
+	xPos = tableobj.x
 End Function
 
-Function ypos(tableobj)
+Function yPos(tableobj)
 	on error resume next
-	ypos = activeball.y
-	ypos = tableobj.y
+	yPos = activeball.y
+	yPos = tableobj.y
 End Function
 
 '	Simplified pan and fade based on a specific object.
 '	Returns -1..0..1
 '
-Function AudioFade(tableobj)
-	AudioFade = AudioCurve(ssfTable.Height, ypos(tableobj), ssfCurveRateY)
+Function audioFade(tableobj)
+	audioFade = AudioCurve(ssfTable.Height, ypos(tableobj), ssfCurveRateY)
 End Function
 
-Function AudioPan(tableobj)
-	AudioPan = AudioCurve(ssfTable.Width, xpos(tableobj), ssfCurveRateX)
+Function audioPan(tableobj)
+	audioPan = AudioCurve(ssfTable.Width, xpos(tableobj), ssfCurveRateX)
 End Function
 
 
@@ -120,68 +140,70 @@ End Function
 
 '	Any object
 '
-'	Useexisting off, restart on
+'	Generally starting new sounds due to independent event triggers
+'	Useexisting off, restart off
 '
-Sub PlaySoundAt(sound, tableobj)
-	PlaySound sound, 1, 1, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
+Sub playSoundAt(sound, tableobj)
+	PlaySound sound, 1, 1, audioPan(tableobj), ssfRandomPitch, 0, 0, 0, audioFade(tableobj)
 End Sub
 
-Sub PlayExistingSoundAt(sound, tableobj)
-	PlaySound sound, 1, 1, AudioPan(tableobj), 0, 0, 1, 0, AudioFade(tableobj)
+Sub playExistingSoundAt(sound, tableobj)
+	PlaySound sound, 1, 1, audioPan(tableobj), ssfRandomPitch, 0, 1, 0, audioFade(tableobj)
 End Sub
 
 '	Per object adjust volume
-Sub PlaySoundAtVol(sound, tableobj, Vol)
-	PlaySound sound, 1, Vol, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
+Sub playSoundAtVol(sound, tableobj, vol)
+	PlaySound sound, 1, vol, audioPan(tableobj), ssfRandomPitch, 0, 0, 0, audioFade(tableobj)
 End Sub
 
-Sub PlaySoundAtRPitch(sound, tableobj, RPitch)
-	PlaySound sound, 1, 1, AudioPan(tableobj), RPitch, 0, 0, 1, AudioFade(tableobj)
+Sub playSoundAtRPitch(sound, tableobj, rPitch)
+	PlaySound sound, 1, 1, audioPan(tableobj), rPitch, 0, 0, 0, audioFade(tableobj)
 End Sub
 
-Sub PlayRepeatSoundAtVol(sound, tableobj, vol)
-	PlaySound sound, -1, vol, AudioPan(tableobj), 0, 0, 0, 1, AudioFade(tableobj)
+Sub playRepeatSoundAtVol(sound, tableobj, vol)
+	PlaySound sound, -1, vol, audioPan(tableobj), ssfRandomPitch, 0, 0, 0, audioFade(tableobj)
 End Sub
 
 
 '	Ball location functions taking ball speed into account
 '
+'	Generally starting new sounds - could be multiple balls
 '	Useexisting on/off, restart off
 '
-Function BallVel(ball)
-	BallVel = sqr((ball.VelX ^2) + (ball.VelY ^2))
+Function ballVel(ball)
+	ballVel = sqr((ball.VelX ^2) + (ball.VelY ^2))
 End Function
 
-Function BallVol(ball)
-	BallVol = BallVel(ball) ^3 /2000
+Function ballVol(ball)
+	ballVol = BallVel(ball) ^3 /2000
 End Function
 
-Function BallPitch(ball)
-	BallPitch = BallVel(ball) *20
+Function ballPitch(ball)
+	ballPitch = BallVel(ball) *20
 End Function
 
-Sub PlaySoundAtBall(sound)
-	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 0, 0, AudioFade(ActiveBall)
+Sub playSoundAtBall(sound)
+	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub PlaySoundAtBallVol(sound, VolMult)
-	PlaySound sound, 0, BallVol(ActiveBall) * VolMult, AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 0, 0, AudioFade(ActiveBall)
+Sub playSoundAtBallVol(sound, volMult)
+	PlaySound sound, 0, ballVol(ActiveBall) * volMult, audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub PlaySoundAtBallPitch(sound, pitch)
-	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, pitch, 0, 0, AudioFade(ActiveBall)
+Sub playSoundAtBallPitch(sound, pitch)
+	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, pitch, 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub PlaySoundAtBallVolPitch(sound, volMult, pitch)
-	PlaySound sound, 0, BallVol(ActiveBall) * volMult, AudioPan(ActiveBall), 0, pitch, 0, 0, AudioFade(ActiveBall)
+Sub playSoundAtBallVolPitch(sound, volMult, pitch)
+	PlaySound sound, 0, ballVol(ActiveBall) * volMult, audioPan(ActiveBall), 0, pitch, 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub PlayExistingSoundAtBall(sound)
-	PlaySound sound, 0, BallVol(ActiveBall), AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 1, 0, AudioFade(ActiveBall)
+Sub playExistingSoundAtBall(sound)
+	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 1, 0, audioFade(ActiveBall)
 End Sub
 
-Sub PlayExistingSoundAtBallVol(sound, VolMult)
-	PlaySound sound, 0, BallVol(ActiveBall) * VolMult, AudioPan(ActiveBall), 0, BallPitch(ActiveBall), 1, 0, AudioFade(ActiveBall)
+Sub playExistingSoundAtBallVol(sound, volMult)
+	PlaySound sound, 0, ballVol(ActiveBall) * volMult, audioPan(ActiveBall), 0, ballPitch(ActiveBall), 1, 0, audioFade(ActiveBall)
 End Sub
 
 
@@ -196,18 +218,6 @@ End Sub
 ' One collision sound, in this script is called fx_collide
 ' As many sound files as max number of balls: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
 
-
-' Sounds are played based on the ball speed and position
-' The routine checks first for deleted balls and stops the rolling sound.
-'
-' The For loop goes through all the balls on the table and checks for the ball speed and 
-' if the ball is on the table (height lower than 30) then then it plays the sound
-' otherwise the sound is stopped, like when the ball has stopped or is on a ramp or flying.
-'
-' The sound is played using the VOL, PAN and PITCH functions, so the volume and pitch of the sound
-' will change according to the ball speed, and the PAN function will change the stereo position according
-' to the position of the ball on the table.
-'
 ReDim rolling(ssfBalls)
 
 Sub RollingTimer_Timer()
@@ -216,10 +226,8 @@ Sub RollingTimer_Timer()
 
 	' Stop the sound of deleted balls
 	For b = UBound(BOT) + 1 to UBound(rolling)
-		If rolling(b) = True Then
-			rolling(b) = False
-			StopSound("fx_ballrolling" & b)
-		End If
+		rolling(b) = False
+		StopSound("fx_ballrolling" & b)
     	Next
 
 	' Exit the sub if no balls on the table
@@ -227,15 +235,15 @@ Sub RollingTimer_Timer()
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
-		If BallVel(BOT(b)) > 0 Then		' Moving ball
+		If BallVel(BOT(b)) > 0 Then	' Moving ball
 			rolling(b) = True
-			if BOT(b).z < ballSize Then 	' ..on playfield
+		        if BOT(b).z < ssfPlayfieldOffset + Ballsize Then 	' ..on playfield
           			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
-		        Else 				' ..on raised ramp
+		        Else 							' ..on raised ramp
 				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +30000, 1, 0, AudioFade(BOT(b))
 			End If
 
-		Else					' Not moving
+		Else				' Not moving
 			If rolling(b) = True Then
 				rolling(b) = False
 				StopSound("fx_ballrolling" & b)
@@ -244,17 +252,13 @@ Sub RollingTimer_Timer()
 
 		' Rothbauerw's dropping sounds
 		'
-		If BOT(b).VelZ < -1 and BOT(b).z < 55 and BOT(b).z > 27 Then	' Height adjust for ball drop sounds
+		If BOT(b).VelZ < -1 and BOT(b).z < ssfPlayfieldOffset+55 and BOT(b).z > ssfPlayfieldOffset +27 Then			' Height adjust for ball drop sounds
             		PlaySound "fx_balldrop", 0, abs(BOT(b).velz) /17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
         	End If
 	Next
 End Sub
 
-' The collision is built in VP.
-' You only need to add a Sub OnBallBallCollision(ball1, ball2, velocity) and when two balls collide they 
-' will call this routine. What you add in the sub is up to you. As an example is a simple Playsound with volume and paning
-' depending of the speed of the collision.
-'
+' The collision is built in VP, when two balls collide they will call this routine. 
 Sub OnBallBallCollision(ball1, ball2, velocity)
 	PlaySound("fx_collide"), 0, velocity ^2 /2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
 End Sub
