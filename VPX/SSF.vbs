@@ -218,36 +218,25 @@ End Sub
 ' One collision sound, in this script is called fx_collide
 ' As many sound files as max number of balls: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
 
-ReDim rolling(ssfBalls)
-
 Sub RollingTimer_Timer()
 	Dim BOT, b
 	BOT = GetBalls
 
 	' Stop the sound of deleted balls
-	For b = UBound(BOT) + 1 to UBound(rolling)
-		rolling(b) = False
+	For b = UBound(BOT) + 1 to ssfBalls
 		StopSound("fx_ballrolling" & b)
     	Next
-
-	' Exit the sub if no balls on the table
-	If UBound(BOT) = -1 Then Exit Sub
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
 		If BallVel(BOT(b)) > 0 Then	' Moving ball
-			rolling(b) = True
 		        if BOT(b).z < ssfPlayfieldOffset + Ballsize Then 	' ..on playfield
           			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
 		        Else 							' ..on raised ramp
 				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +30000, 1, 0, AudioFade(BOT(b))
 			End If
-
 		Else				' Not moving
-			If rolling(b) = True Then
-				rolling(b) = False
-				StopSound("fx_ballrolling" & b)
-			End If
+			StopSound("fx_ballrolling" & b)
 		End If
 
 		' Rothbauerw's dropping sounds
