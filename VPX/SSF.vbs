@@ -161,7 +161,7 @@ Sub playSoundAtRPitch(sound, tableobj, rPitch)
 End Sub
 
 Sub playRepeatSoundAtVol(sound, tableobj, vol)
-	PlaySound sound, -1, vol, audioPan(tableobj), ssfRandomPitch, 0, 0, 0, audioFade(tableobj)
+	PlaySound sound, -1, vol, audioPan(tableobj), ssfRandomPitch, 0, 1, 0, audioFade(tableobj)
 End Sub
 
 
