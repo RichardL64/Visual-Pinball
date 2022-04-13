@@ -16,3 +16,5 @@ VPX
     - Factor surround sound SSF into a separate scripts file
     - Standardise SSF code and make conversion/upgrade of tables easier (for me) 
     - Common existing code like JP's ball rolling in one place  
+  - SSF2.vbs
+    - SSF functionality with entry points focused on action required i.e. ssfBallHit, ssfBallSlide etc
