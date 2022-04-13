@@ -3,7 +3,7 @@
 '	SSF2
 '	https://github.com/RichardL64
 '
-'	R.Lincoln	April 2021
+'	R.Lincoln	April 2022
 '
 '	Factored and enhanced SSF routines
 '	Grouped related SSF functions into a single common script
