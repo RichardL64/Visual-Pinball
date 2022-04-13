@@ -62,6 +62,7 @@ ssfCurveRateX = 2
 ssfCurveRateY = 3
 
 '	Playfield height to work out if the ball is on a ramp
+'	Some playfields are not at height 0, so this allows adjustment
 '
 Dim ssfPlayfieldOffset
 ssfPlayfieldOffset = 0
@@ -159,7 +160,7 @@ Sub ssfBallHit(sound)			' Impact sound using ball speed to adjust
 	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub ssfBallSlide(sound)			' Slide/Rail/Ramp sound using ball speed to adjust
+Sub ssfBallRoll(sound)			' Roll on a rail/Ramp sound using ball speed to adjust
 	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 1, 0, audioFade(ActiveBall)
 End Sub
 
@@ -195,11 +196,11 @@ Sub RollingTimer_Timer()
 
 	' Play the rolling sound for each ball
 	For b = 0 to UBound(BOT)
-		If BallVel(BOT(b)) > 0 Then	' Moving ball
+		If ballVel(BOT(b)) > 0 Then	' Moving ball
 		        if BOT(b).z < ssfPlayfieldOffset + Ballsize Then 	' ..on playfield
-          			PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+          			PlaySound("fx_ballrolling" & b), -1, ballVol(BOT(b)) *ssfRollingVol, audioPan(BOT(b)), 0, ballPitch(BOT(b)), 1, 0, audioFade(BOT(b))
 		        Else 							' ..on raised ramp
-				PlaySound("fx_ballrolling" & b), -1, BallVol(BOT(b)) *ssfRollingVol, AudioPan(BOT(b)), 0, BallPitch(BOT(b)) +30000, 1, 0, AudioFade(BOT(b))
+				PlaySound("fx_ballrolling" & b), -1, ballVol(BOT(b)) *ssfRollingVol, audioPan(BOT(b)), 0, ballPitch(BOT(b)) +30000, 1, 0, audioFade(BOT(b))
 			End If
 
 		Else				' Not moving
@@ -208,15 +209,16 @@ Sub RollingTimer_Timer()
 
 		' Rothbauerw's dropping sounds
 		'
-		If BOT(b).VelZ < -1 and BOT(b).z < ssfPlayfieldOffset+55 and BOT(b).z > ssfPlayfieldOffset +27 Then			' Height adjust for ball drop sounds
-            		PlaySound "fx_balldrop", 0, abs(BOT(b).velz) /17, AudioPan(BOT(b)), 0, BallPitch(BOT(b)), 1, 0, AudioFade(BOT(b))
+		If BOT(b).VelZ < -1 and BOT(b).z < ssfPlayfieldOffset +55 and BOT(b).z > ssfPlayfieldOffset +27 Then			' Height adjust for ball drop sounds
+            		PlaySound "fx_balldrop", 0, abs(BOT(b).velz) /17, audioPan(BOT(b)), 0, ballPitch(BOT(b)), 1, 0, audioFade(BOT(b))
         	End If
 	Next
 End Sub
 
 ' The collision is built in VP, when two balls collide they will call this routine. 
+'
 Sub OnBallBallCollision(ball1, ball2, velocity)
-	PlaySound("fx_collide"), 0, velocity ^2 /2000, AudioPan(ball1), 0, BallPitch(ball1), 0, 0, AudioFade(ball1)
+	PlaySound "fx_collide", 0, velocity ^2 /2000, AudioPan(ball1), 0, 0, 0, 0, AudioFade(ball1)
 End Sub
 
 '**********************************************************************************************************
