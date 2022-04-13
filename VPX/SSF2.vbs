@@ -152,7 +152,7 @@ Sub ssfSoundAt(sound, object)		' One off sound at an object
 End Sub
 
 Sub ssfSoundAtVol(sound, object, volume)' One off sound at an object
-	PlaySound sound, 1, 1, audioPan(object), ssfRandomPitch, 0, 0, 0, audioFade(object)
+	PlaySound sound, 1, volume, audioPan(object), ssfRandomPitch, 0, 0, 0, audioFade(object)
 End Sub
 
 Sub ssfBallHit(sound)			' Impact sound using ball speed to adjust
@@ -183,7 +183,7 @@ End Sub
 ' A timer called RollingTimer. With a fast interval, like 10
 ' One collision sound, in this script is called fx_collide
 ' As many sound files as max number of balls: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
-
+'
 Sub RollingTimer_Timer()
 	Dim BOT, b
 	BOT = GetBalls
