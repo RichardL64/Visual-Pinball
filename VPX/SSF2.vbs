@@ -5,6 +5,8 @@
 '
 '	R.Lincoln	April 2022
 '
+'	Requires VPX 10.7 or later
+'
 '	Factored and enhanced SSF routines
 '	Grouped related SSF functions into a single common script
 '
@@ -17,7 +19,6 @@
 '	On Error Resume Next
 '	ExecuteGlobal GetTextFile("SSF2.vbs")
 '	If Err Then MsgBox "SSF2.vbs missing"
-'	Set ssfTable = x					' Optional for earlier than 10.7 if the table is not table1
 '	On Error Goto 0
 '
 '
@@ -27,20 +28,10 @@
 '**********************************************************************************************************
 option Explicit
 
-
-'	ActiveTable is only available after 10.7
-'	Assumes table1, can be overridden for tables with different names
-'
-Dim ssfTable
-on error resume next
-set ssfTable = ActiveTable			' should work under vpx 10.7 and later
-set ssfTable = table1				' not always so the caller can override
-on error goto 0
-
-'	Maximum number of balls for ball rolling sounds
+'	Ball count dynamically updated during the rolling routine
 '
 Dim ssfBalls
-ssfBalls = 5
+ssfBalls = 0
 
 '	Multiplier for the ball rolling sound volume
 '	Some tables are strangely loud - so allows overriding later
@@ -62,7 +53,6 @@ ssfCurveRateX = 2
 ssfCurveRateY = 3
 
 '	Playfield height to work out if the ball is on a ramp
-'	Some playfields are not at height 0, so this allows adjustment
 '
 Dim ssfPlayfieldOffset
 ssfPlayfieldOffset = 0
@@ -77,6 +67,15 @@ ssfRandomPitch = 0.1
 '
 '	Useful functions
 '
+
+function iif(cond, ifTrue, ifFalse)
+	if cond then
+		iif = ifTrue
+	else
+		iid = ifFalse
+	end if
+end function
+
 function random(low, high)
 	random = int((high-low+1) * rnd + low)	
 End Function
@@ -118,11 +117,11 @@ End Function
 '	Returns -1..0..1
 '
 Function audioFade(tableobj)
-	audioFade = AudioCurve(ssfTable.Height, ypos(tableobj), ssfCurveRateY)
+	audioFade = AudioCurve(ActiveTable.Height, ypos(tableobj), ssfCurveRateY)
 End Function
 
 Function audioPan(tableobj)
-	audioPan = AudioCurve(ssfTable.Width, xpos(tableobj), ssfCurveRateX)
+	audioPan = AudioCurve(ActiveTable.Width, xpos(tableobj), ssfCurveRateX)
 End Function
 
 '	Ball location functions/speed functions
@@ -139,6 +138,7 @@ Function ballPitch(ball)
 	ballPitch = BallVel(ball) *20
 End Function
 
+'**********************************************************************************************************
 
 '	Playsound wrappers
 '
@@ -160,7 +160,7 @@ Sub ssfBallHit(sound)			' Impact sound using ball speed to adjust
 	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
 End Sub
 
-Sub ssfBallRoll(sound)			' Roll on a rail/Ramp sound using ball speed to adjust
+Sub ssfBallRoll(sound)			' Rolling on a rail/ramp using ball speed to adjust
 	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 1, 0, audioFade(ActiveBall)
 End Sub
 
@@ -175,32 +175,39 @@ End Sub
 
 
 '**********************************************************************************************************
-'
-'      JP's VP10 Rolling Sounds
-'
 
-' Requirements
+'	JP's VP10 Rolling Sounds, adjusted
 '
-' A timer called RollingTimer. With a fast interval, like 10
-' One collision sound, in this script is called fx_collide
-' As many sound files as max number of balls: fx_ballrolling0, fx_ballrolling1, fx_ballrolling2, fx_ballrolling3, etc
+'	Requirements
+'
+'	A timer
+'		RollingTimer with a fast interval, like 10
+'
+'	Sounds
+'		fx_collide
+'		fx_ballrollingx	(where x = 0-max balls on the table)
+'		fx_balldrop
 '
 Sub RollingTimer_Timer()
-	Dim BOT, b
+	Dim BOT, b, ball, ballR, ballD
 	BOT = GetBalls
 
-	' Stop the sound of deleted balls
-	For b = UBound(BOT) + 1 to ssfBalls
+	' Stop the sound of deleted balls, based on change since last call
+	For b = UBound(BOT) +1 to ssfBalls
 		StopSound("fx_ballrolling" & b)
     	Next
 
-	' Play the rolling sound for each ball
+	' Play the rolling sound for each ball, ssfBalls will be number of balls +1 on exit
 	For b = 0 to UBound(BOT)
-		If ballVel(BOT(b)) > 0 Then	' Moving ball
-		        if BOT(b).z < ssfPlayfieldOffset + Ballsize Then 	' ..on playfield
-          			PlaySound("fx_ballrolling" & b), -1, ballVol(BOT(b)) *ssfRollingVol, audioPan(BOT(b)), 0, ballPitch(BOT(b)), 1, 0, audioFade(BOT(b))
+		set ball = BOT(b)
+		ballR = ball.Radius *1.1	' + 10% for z/height comparisons
+		ballD = ballR *2
+
+		If BallVel(ball) > 0 Then	' Moving ball
+		        if ball.Z < ssfPlayfieldOffset + ballR Then 		' ..on playfield
+          			PlaySound("fx_ballrolling" & b), -1, ballVol(ball) *ssfRollingVol, audioPan(ball), 0, ballPitch(ball), 1, 0, audioFade(ball)
 		        Else 							' ..on raised ramp
-				PlaySound("fx_ballrolling" & b), -1, ballVol(BOT(b)) *ssfRollingVol, audioPan(BOT(b)), 0, ballPitch(BOT(b)) +30000, 1, 0, audioFade(BOT(b))
+				PlaySound("fx_ballrolling" & b), -1, ballVol(ball) *ssfRollingVol, audioPan(ball), 0, ballPitch(ball) +30000, 1, 0, audioFade(ball)
 			End If
 
 		Else				' Not moving
@@ -208,17 +215,19 @@ Sub RollingTimer_Timer()
 		End If
 
 		' Rothbauerw's dropping sounds
+		' For ball lifting between 50% and full height of the ball during play
 		'
-		If BOT(b).VelZ < -1 and BOT(b).z < ssfPlayfieldOffset +55 and BOT(b).z > ssfPlayfieldOffset +27 Then			' Height adjust for ball drop sounds
-            		PlaySound "fx_balldrop", 0, abs(BOT(b).velz) /17, audioPan(BOT(b)), 0, ballPitch(BOT(b)), 1, 0, audioFade(BOT(b))
+		If ball.VelZ < -1 and ball.Z < ssfPlayfieldOffset+ballD and ball.Z > ssfPlayfieldOffset+ballR Then
+           		PlaySound "fx_balldrop", 0, abs(ball.VelZ) /17, audioPan(ball), 0, ballPitch(ball), 1, 0, audioFade(ball)
         	End If
 	Next
+	ssfBalls = UBound(bot)			' Update count of balls on the table dynamically
 End Sub
 
-' The collision is built in VP, when two balls collide they will call this routine. 
+' The collision is built in VP, when two balls collide they will call this routine.
 '
 Sub OnBallBallCollision(ball1, ball2, velocity)
-	PlaySound "fx_collide", 0, velocity ^2 /2000, AudioPan(ball1), 0, 0, 0, 0, AudioFade(ball1)
+	PlaySound("fx_collide"), 0, velocity ^2 /2000, AudioPan(ball1), 0, 0, 0, 0, AudioFade(ball1)
 End Sub
 
 '**********************************************************************************************************
