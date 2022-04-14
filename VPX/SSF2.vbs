@@ -72,7 +72,7 @@ function iif(cond, ifTrue, ifFalse)
 	if cond then
 		iif = ifTrue
 	else
-		iid = ifFalse
+		iif = ifFalse
 	end if
 end function
 
