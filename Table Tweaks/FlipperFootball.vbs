@@ -139,8 +139,8 @@ Sub table1_Init
 	sw47a.IsDropped = 1:sw72a.IsDropped = 1:sw67a.IsDropped = 1:sw29a.IsDropped = 1
 	sw53a.IsDropped = 1
 	' Main Timer init
-	PinMAMETimer.Interval = PinMAMEInterval
-	PinMAMETimer.Enabled = 1
+'	PinMAMETimer.Interval = PinMAMEInterval
+'	PinMAMETimer.Enabled = 1
 	'StartShake
 End Sub
 
