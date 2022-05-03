@@ -139,7 +139,7 @@ Sub table1_Init
 	sw47a.IsDropped = 1:sw72a.IsDropped = 1:sw67a.IsDropped = 1:sw29a.IsDropped = 1
 	sw53a.IsDropped = 1
 	' Main Timer init
-	PinMAMETimer.Interval = 1 'PinMAMEInterval  Low numbers work well
+	PinMAMETimer.Interval = 10 'PinMAMEInterval  10msec looks like the sweet spot
 	PinMAMETimer.Enabled = 1
 	'StartShake
 End Sub
