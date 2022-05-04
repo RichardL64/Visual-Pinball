@@ -12,6 +12,7 @@
 const myFilters = [
 	"All", 
 	"Manuf.Bally",
+	"Manuf.Capcom",
 	"Manuf.Data East",
 	"Manuf.Gottlieb",
 	"Manuf.Sega",
