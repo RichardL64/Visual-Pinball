@@ -8,6 +8,7 @@ PinballY
   - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
   - LaunchFade.js   Fade the preview playfield to dark grey during game load
   - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
+  - Startup.js      Choose a random game from the 'startup' category and run it automatically
  
 
 VPX
