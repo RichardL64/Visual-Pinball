@@ -7,7 +7,7 @@ PinballY
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
   - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
   - LaunchFade.js   Fade the preview playfield during game load
-  - LaunchVideo.js  Run launch.mp4 on game launches (does not co-exist with LaunchFade)
+  - LaunchVideo.js  Run 'game (manuf year).mp4' then 'launch.mp4' on game launches (does not co-exist with LaunchFade)
  
 
 VPX
