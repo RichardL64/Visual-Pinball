@@ -7,6 +7,8 @@
 //	Plays			../PinballY/Media/Videos/<Game Name (Manufacturer Year>.mp4
 //	If it doesnt exist	../PinballY/Media/Videos/Launch.mp4
 //
+//	Logs attempts in PinballY/Pinbally.log under [Script] [LaunchVideo]....
+//
 //	R.Lincoln	April 2022
 //
 
