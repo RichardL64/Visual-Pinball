@@ -4,10 +4,8 @@
 //
 //	Play video during game launch
 //
-//	Plays			../PinballY/Media/Videos/<Game Name (Manufacturer Year>.mp4
-//	If it doesnt exist	../PinballY/Media/Videos/Launch.mp4
-//
-//	Logs attempts in PinballY/Pinbally.log under [Script] [LaunchVideo]....
+//	Plays			../PinballY/Media/Launch Videos/<Game Name (Manufacturer Year>.mp4
+//	If it doesnt exist	../PinballY/Media/Launch Videos/Launch.mp4
 //
 //	R.Lincoln	April 2022
 //
@@ -19,14 +17,15 @@
 //
 function myOverlayShow(ev) {
 	var name, video
+	const folder = "Launch Videos"
 
 	name = mainWindow.getUIMode().game.displayName;
 	logfile.log("[Launch Video] Trying: %s", name);
-	video = gameList.resolveMedia("Videos", name, "Video" );
+	video = gameList.resolveMedia(folder, name, "Video" );
 
 	if(video === undefined) {
 		logfile.log("[Launch Video] Trying: Launch");
-		video = gameList.resolveMedia("Videos","Launch", "Video" );
+		video = gameList.resolveMedia(folder,"Launch", "Video" );
 	}
 
 	mainWindow.launchOverlay.bg.loadVideo(video);
