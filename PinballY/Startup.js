@@ -41,6 +41,6 @@ function myOverlayMessage(ev) {
 //	Setup hooks
 //
 mainWindow.on("launchoverlaymessage", myOverlayMessage);
-
 logfile.log("[Startup] Initialised");
+
 //  End
