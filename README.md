@@ -6,8 +6,8 @@ PinballY
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
   - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
-  - LaunchFade.js   Fade the preview playfield during game load
-  - LaunchVideo.js  Run 'game (manuf year).mp4' then 'launch.mp4' on game launches (does not co-exist with LaunchFade)
+  - LaunchFade.js   Fade the preview playfield to dark grey during game load
+  - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
  
 
 VPX
