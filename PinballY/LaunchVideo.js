@@ -4,7 +4,7 @@
 //
 //	Play video during game launch
 //
-//	Plays			../PinballY/Media/Launch Videos/<Game Name (Manufacturer Year>.mp4
+//	Plays			../PinballY/Media/Launch Videos/<Game Name (Manufacturer Year)>.mp4
 //	If it doesnt exist	../PinballY/Media/Launch Videos/Launch.mp4
 //
 //	R.Lincoln	April 2022
