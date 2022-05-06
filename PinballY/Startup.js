@@ -36,7 +36,7 @@ function startupGame() {
 //
 function myOverlayMessage(ev) {
 	if(games.length >0 && ev.message == "Loading...") {
-		ev.message = "Loading startup game"
+		ev.message = "Loading startup game..."
 	}
 }
 
