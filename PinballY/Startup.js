@@ -11,8 +11,6 @@
 // 	R.Lincoln   May 2022
 //
 
-logfile.log("[Startup] Initialised");
-
 //	Find games in the startup category
 //
 var games, game
@@ -44,5 +42,5 @@ function myOverlayMessage(ev) {
 //
 mainWindow.on("launchoverlaymessage", myOverlayMessage);
 
-
+logfile.log("[Startup] Initialised");
 //  End
