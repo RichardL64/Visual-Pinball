@@ -28,12 +28,13 @@ function startupGame() {
 	game = Math.floor(Math.random() * games.length);			// 0 based index of one of them at random
 	logfile.log("[Startup] Choose #%d: %s", game +1, games[game].displayName);
 	mainWindow.playGame(games[game])					// Start it!
+	game = -1;								// make sure we dont overlay messages later
 }
 
 //	Overlay message
 //
 function myOverlayMessage(ev) {
-	if(games.length >0 && ev.message == "Loading...") {
+	if(game > -1 && ev.message == "Loading...") {
 		ev.message = "Loading startup game..."
 	}
 }
