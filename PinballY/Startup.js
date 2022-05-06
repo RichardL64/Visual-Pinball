@@ -13,7 +13,8 @@
 
 //	Find games in the startup category
 //
-var games, game
+var game, games
+game = -1									// invalid index to avoid overriding messages
 games = gameList.getFilterInfo("Category.Startup").getGames();			// 0 based array of all games in startup category
 logfile.log("[Startup] %d games in startup category", games.length);
 
@@ -28,7 +29,7 @@ function startupGame() {
 	game = Math.floor(Math.random() * games.length);			// 0 based index of one of them at random
 	logfile.log("[Startup] Choose #%d: %s", game +1, games[game].displayName);
 	mainWindow.playGame(games[game])					// Start it!
-	game = -1;								// make sure we dont overlay messages later
+	game = -1;								// make sure we dont override messages later
 }
 
 //	Overlay message
