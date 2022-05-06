@@ -12,6 +12,7 @@
 //	Fade out the table preview while loading
 //
 function myOverlayShow(ev) {
+	mainWindow.showWheel(false);
 	mainWindow.launchOverlay.bg.clear(0xcc000000);		// ~80% black
 	ev.preventDefault();
 }
@@ -22,11 +23,19 @@ function myOverlayMessage(ev) {
 	ev.hideWheelImage = true;
 }
 
+//	Game is finishing turn the wheel back on
+//
+function myGameOver(ev) {
+	mainWindow.showWheel(true);
+}
 
 //	Setup the launch hook
 //
 mainWindow.on("launchoverlayshow", myOverlayShow);
 mainWindow.on("launchoverlaymessage", myOverlayMessage);
+mainWindow.on("launcherror", myGameOver);
+mainWindow.on("gameover", myGameOver);
+
 logfile.log("[LaunchFade] Initialised");
 
 //  End
