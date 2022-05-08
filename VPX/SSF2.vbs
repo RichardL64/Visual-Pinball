@@ -72,7 +72,7 @@ function iif(cond, ifTrue, ifFalse)
 	if cond then
 		iif = ifTrue
 	else
-		iif = ifFalse
+		iid = ifFalse
 	end if
 end function
 
@@ -158,6 +158,10 @@ End Sub
 
 Sub ssfBallHit(sound)			' Impact sound using ball speed to adjust
 	PlaySound sound, 0, ballVol(ActiveBall), audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
+End Sub
+
+Sub ssfBallHitVol(sound, vol)		' Impact with passed in volume
+	PlaySound sound, 0, vol, audioPan(ActiveBall), 0, ballPitch(ActiveBall), 0, 0, audioFade(ActiveBall)
 End Sub
 
 Sub ssfBallRoll(sound)			' Rolling on a rail/ramp using ball speed to adjust
