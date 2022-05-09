@@ -19,7 +19,7 @@ function myOverlayShow(ev) {
 	var name, video
 	const folder = "Launch Videos"
 
-	name = ev.game.displayName;
+	name = ev.game.mediaName;
 	logfile.log("[Launch Video] Trying: '%s'", name);
 	video = gameList.resolveMedia(folder, name, "Video" );
 
