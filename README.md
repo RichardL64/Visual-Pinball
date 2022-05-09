@@ -9,7 +9,7 @@ PinballY
   - LaunchFade.js   Fade the preview playfield to dark grey during game load
   - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
- 
+  - FlexDMD.js      Adjusted/compatible version of vbousquet's https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
 
 VPX
   - SSF.vbs
