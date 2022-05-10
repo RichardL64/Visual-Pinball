@@ -11,6 +11,8 @@ PinballY
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
   - FlexDMD.js      Adjusted/compatible version of vbousquet's https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
 
+  - DMDImage.js     Work in progress - automatically convert DMD screenshots to images FlexDMD can display for each game
+
 VPX
   - SSF.vbs
     - Automatically make PlaySoundAt work with objects that don't have .x , .y properties
