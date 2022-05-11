@@ -1,6 +1,11 @@
 # Visual-Pinball
 Visual pinball & associated software, my mods/scripts settings.
 
+In development
+  - FlexDMD.js      Minor tweaks from the original / transition to game start etc, Star Wars 'Push Start' animation
+  - DMDImage.js     Attempt to automatically convert existing DMD screenshots to 128x32 images FlexDMD can display for each game title
+
+
 PinballY
   - Main.js         PinballY entry point invoking other scripts
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
@@ -11,7 +16,6 @@ PinballY
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
   - FlexDMD.js      Adjusted/compatible version of vbousquet's https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
 
-  - DMDImage.js     Work in progress - automatically convert DMD screenshots to images FlexDMD can display for each game
 
 VPX
   - SSF.vbs
