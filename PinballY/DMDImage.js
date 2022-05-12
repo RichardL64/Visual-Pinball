@@ -15,7 +15,7 @@
 		NOTE VERY ALPHA STATE
 	
 			Doesnt delete any files - equally may not work in all scenarios
-			The code is very instructured proof of concept state, no error trapping or graceful failures!
+			The code is very unstructured proof of concept state, no error trapping or graceful failures!
 
 			Making lots of initial assumptions about file locations etc
 
