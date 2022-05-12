@@ -98,7 +98,7 @@ Number.prototype.toDDHHMMSS = function () {
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
-    return days+"d "+hours+':'+minutes+':'+seconds;
+    return days+"days "+hours+':'+minutes+':'+seconds;
 }
 
 
@@ -172,6 +172,9 @@ function TestMarshalling() {
 //	Calls itself on a loop until the timer is stopped
 //
 function UpdateDMD() {
+
+	//	If called before the timer, just reset it
+	//
 	if (updater !== undefined) clearTimeout(updater);
 	updater = undefined;
 
@@ -193,8 +196,9 @@ function UpdateDMD() {
 
 	if (info == null) return;
 
+	//	If its still rendering or the same game, set a timer and come back later
+	//
 	if (udmd.IsRendering() && shownInfo != null && info.id == shownInfo.id) {
-		// Add a timeout later for when the render queue will be finished
 		updater = setTimeout(UpdateDMD, 1000);
 		return;
 	}
@@ -202,6 +206,7 @@ function UpdateDMD() {
 	//	Lock DMD render to start updates
 	//
 	dmd.LockRenderThread();
+	udmd.CancelRendering();
 
 	if (shownInfo == null || info.id != shownInfo.id) {
 		loopCount = 0;
@@ -210,7 +215,6 @@ function UpdateDMD() {
 		loopCount++;
 	}			
 
-	udmd.CancelRendering();
 
 
 	//	This will reopen the DMD with the right ROM name, allowing for ROM customization in dmddevice.ini
@@ -230,27 +234,8 @@ function UpdateDMD() {
 			dmd.GameName = rom.vpmRom.toString();
 		}
 	}
-	
 
-	//	Manufacturer
-	//
-	let transitionMargin = (20 * 1000) / 60;
-    	let manufacturer_temp = info.manufacturer;
-
-    	// Little workaround for special character in Williams "TM" Pinball Problem from FX3,
- 	// If its Williams and it has more than 8 chars
-    	if (manufacturer_temp != null && (manufacturer_temp.substr(0,8) == "Williams") && (manufacturer_temp.length > 8)) {
-        	manufacturer_temp = "WilliamsFX3Pinball";
-    	}
-
- 	if (manufacturer_temp in manufacturers) {
-        	var medias = manufacturers[manufacturer_temp];
-        	var media = medias[Math.floor(Math.random() * medias.length)];
-        	queueVideo(media, 10, 8, transitionMargin);
- 
-	} else if (info.manufacturer !== undefined) {
-        	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", info.manufacturer, 15, "", 15, 10, 3000, 8);
- 	}
+	let transitionMargin = (30 * 1000) / 60;
 	
 
 	//	Title
@@ -259,8 +244,10 @@ function UpdateDMD() {
 	if (info.mediaName != null) {
 		var extensions = [".gif", ".avi", ".png"];
 		for (var i = 0; i < extensions.length; i++) {
-			if (fso.FileExists("./Scripts/dmds/titles/" + info.mediaName + extensions[i])) {
-				queueVideo("./Scripts/dmds/titles/" + info.mediaName + extensions[i], 0, 8, transitionMargin);
+
+			if (fso.FileExists("./Scripts/dmds/tables/" + info.mediaName + extensions[i])) {
+				queueVideo("./Scripts/dmds/tables/" + info.mediaName + extensions[i], 0, 8, transitionMargin);
+
 				hasTitle = true;
 				break;
 			}
@@ -287,21 +274,43 @@ function UpdateDMD() {
 	}
 
 
+	//	Manufacturer
+	//
+    	let manufacturer_temp = info.manufacturer;
+
+    	// Little workaround for special character in Williams "TM" Pinball Problem from FX3,
+ 	// If its Williams and it has more than 8 chars
+    	if (manufacturer_temp != null && (manufacturer_temp.substr(0,8) == "Williams") && (manufacturer_temp.length > 8)) {
+        	manufacturer_temp = "WilliamsFX3Pinball";
+    	}
+
+ 	if (manufacturer_temp in manufacturers) {
+        	var medias = manufacturers[manufacturer_temp];
+        	var media = medias[Math.floor(Math.random() * medias.length)];
+        	queueVideo(media, 0, 8, transitionMargin);
+ 
+	} else if (info.manufacturer !== undefined) {
+        	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", info.manufacturer, 15, "", 15, 10, 3000, 8);
+ 	}
+
+/*
 	//	Stats
 	//
 	if (info.rating >= 0)
 		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " Rating " + info.rating, 15, "Play time: " + info.playTime.toHHMMSS(), 15, 10, 3000, 8);
 	else
 		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " times", 15, "Playtime " + info.playTime.toHHMMSS(), 15, 10, 3000, 8);
+*/
 
-
+/*
 	//	Insert Coin (every 4 loops)
 	//
 	if (((loopCount + 0) & 3) == 0) {
 		queueVideo("./Scripts/dmds/misc/insertcoin.gif", 10, 14, 0);
-		udmd.DisplayScene00("./Scripts/dmds/misc/insertcoin.gif", "", 15, "", 15, 10, 1399, 14);
+		udmd.DisplayScene00("./Scripts/dmds/misc/insertcoin.gif", "", 15, "", 15, 14, 1399, 14);
 		udmd.DisplayScene00("./Scripts/dmds/misc/insertcoin.gif", "", 15, "", 15, 14, 1399, 14);
 	}
+*/
 
 
 	//	Global stats (every 4 loops)
@@ -320,11 +329,9 @@ function UpdateDMD() {
 	}
 	
 
-	//	Drink'n drive (every 4 loops)
+	//	Push Start
 	//
-	if (((loopCount + 2) & 3) == 0) {
-		udmd.DisplayScene00("./Scripts/dmds/misc/drink'n drive.png", "", 15, "", 15, 10, 3000, 8);
-	}
+	udmd.DisplayScene00("./Scripts/dmds/misc/Push Start 128x32.gif", "", 15, "", 15, 0, 5000, 1);
 	
 
 	//	Highscores
@@ -379,12 +386,10 @@ gameList.on("highscoresready", event => {
 });
 
 //	Game starting
-//	Bring up a black background on PBY DMD
 //	Turn off DMD rendering
 //
 mainWindow.on("prelaunch", event => {
 	logfile.log("> launch");
-
 	if (dmd != null) {
 		udmd.CancelRendering();
 		dmd.Run = false;
