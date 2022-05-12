@@ -102,7 +102,7 @@ function updateDMDImage(sourceFile, DMDFileTest) {
 
 	if(sourceFile.DateLastModified > DMDFile.DateLastModified) {			// If the screenshot date is later,
 //		fso.DeleteFile(DMDFile.path);						// Testing - no destruction
-		ret = CreateDMDImage(sourceFile.path, DMDFile.ParentFolder.path + "\\" + sourceFile.name);
+		ret = createDMDImage(sourceFile.path, DMDFile.ParentFolder.path + "\\" + sourceFile.name);
 	}
 
 	return ret;
