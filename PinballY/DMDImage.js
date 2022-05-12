@@ -97,7 +97,7 @@ throw new Error("==== Normal End ====");
 //	If the source has changed - re create it
 //	Alwats creates sans .x.
 //	
-function updateDMDImage(sourceFile, DMDFileTest) {
+function updateDMDImage(sourceFile, DMDFile) {
 	var ret = true;
 
 	if(sourceFile.DateLastModified > DMDFile.DateLastModified) {			// If the screenshot date is later,
