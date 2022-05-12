@@ -15,7 +15,7 @@
 		NOTE VERY ALPHA STATE
 	
 			Doesnt delete any files - equally may not work in all scenarios
-			The code is very unstructured proof of concept state, no error trapping or graceful failures!
+			The code is very instructured proof of concept state, no error trapping or graceful failures!
 
 			Making lots of initial assumptions about file locations etc
 
@@ -32,7 +32,7 @@
 
 */
 
-throw new Error("==== ALPHA CODE - Comment out this line to use! ====");
+//throw new Error("==== ALPHA CODE - Comment out this line to use! ====");
 
 var sourceF ="C:\\PinballY\\Media\\Visual Pinball X\\DMD Images";			// Folder for PBY DMD Screenshots
 var DMDF = "C:\\PinballY\\Scripts\\DMDs\\tables\\";					// Folder for FlexDMD.js table images
@@ -101,7 +101,9 @@ function updateDMDImage(sourceFile, DMDFileTest) {
 	var ret = true;
 
 	if(sourceFile.DateLastModified > DMDFile.DateLastModified) {			// If the screenshot date is later,
-//		fso.DeleteFile(DMDFile.path);						// Testing - no destruction
+		try {
+			fso.DeleteFile(DMDFile.path);	
+		} catch(err) {}
 		ret = createDMDImage(sourceFile.path, DMDFile.ParentFolder.path + "\\" + sourceFile.name);
 	}
 
