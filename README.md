@@ -1,8 +1,7 @@
 # Visual-Pinball
 Visual pinball & associated software, my mods/scripts settings.
 
-In development
-  - FlexDMD.js      Minor tweaks from the original / transition to game start etc, Star Wars 'Push Start' animation
+In development - Alpha state, works, but at your own risk
   - DMDImage.js     Attempt to automatically convert existing DMD screenshots to 128x32 images FlexDMD can display for each game title
 
 
