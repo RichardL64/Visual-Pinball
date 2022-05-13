@@ -360,7 +360,7 @@ function UpdateDMD() {
 //	Visible around the FlexDMD and at game load time
 //
 let overlay = dmdWindow.createDrawingLayer(1000);
-overlay.clear("#ffff0000");
+overlay.clear("#ff000000");
 
 //	Game selected/wheel moved
 //
