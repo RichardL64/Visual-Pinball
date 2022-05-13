@@ -356,6 +356,12 @@ function UpdateDMD() {
 //	PinballY Hooks
 //
 
+//	At startup override the default DMD display with blackness
+//	Visible around the FlexDMD and at game load time
+//
+let overlay = dmdWindow.createDrawingLayer(1000);
+overlay.clear("#ffff0000");
+
 //	Game selected/wheel moved
 //
 gameList.on("gameselect", event => {
