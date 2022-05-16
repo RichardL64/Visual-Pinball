@@ -98,7 +98,7 @@ Number.prototype.toDDHHMMSS = function () {
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
-    return days+"days "+hours+':'+minutes+':'+seconds;
+    return days+" days "+hours+':'+minutes+':'+seconds;
 }
 
 
@@ -324,8 +324,8 @@ function UpdateDMD() {
 			totalCount += inf.playCount;
 			totalTime += inf.playTime;
 		}
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play count:" , 15, "" + totalCount, 15, 10, 1500, 8);
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play time:" , 15, "" + totalTime.toDDHHMMSS(), 15, 10, 1500, 8);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table plays:" , 15, "" + totalCount, 15, 10, 1500, 8);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table time:" , 15, "" + totalTime.toDDHHMMSS(), 15, 10, 1500, 8);
 	}
 	
 
@@ -376,11 +376,15 @@ gameList.on("gameselect", event => {
 });
 
 //	High scores available
+//	C: Visual Pinball...	returned if no scores available
 //
 gameList.on("highscoresready", event => {
 	logfile.log("> highscoresready");
 	if (event.success && event.game != null) {
-		logfile.log("> scores received");
+		logfile.log("> scores received")
+
+		if(event.scores[0].slice(0,20) == "Not supported rom : ") return;		// invalid highscores - ignore it
+
 		for (var i = 0; i < event.scores.length; i++) {
 			event.scores[i] = event.scores[i].replace(/\u00FF/g, ',');
 		}
