@@ -4,7 +4,6 @@ Visual pinball & associated software, my mods/scripts settings.
 In development
   - DMDImage.js     Attempt to automatically convert existing DMD screenshots to 128x32 images FlexDMD can display for each game title
                     Alpha state, working up to a point                    
-  - AttractFade.js  Fade all screens during attract mode, i.e. when no activity                  
 
 
 PinballY
@@ -12,10 +11,11 @@ PinballY
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
   - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
-  - LaunchFade.js   Fade the preview playfield to ~80% dark grey during game load
+  - LaunchFade.js   Fade the preview playfield with ~80% black overlay during game load
   - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
   - FlexDMD.js      Adjusted/compatible version of vbousquet's https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
+  - AttractFade.js  Fade Playfield, DMD and Backglass with ~80% black overlay in attract, aka inactivity mode 
 
 
 VPX
