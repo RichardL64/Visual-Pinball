@@ -11,5 +11,7 @@ import "Spin.js";
 import "LaunchFade.js";
 //import "LaunchVideo.js";
 //import "Startup.js"
+import "FlexDMD.js"
+import "AttractFade.js"
 
 //  End
