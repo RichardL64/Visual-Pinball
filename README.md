@@ -29,4 +29,4 @@ VPX
 
 Table Tweaks
   - Various adjusted scripts for specific tables
-  - Flipperfootball.vbs: Updated flipper control to more closely match ROM activation without slowing down response
+  - Flipperfootball.vbs: Updated flipper control to more closely match ROM activation, without slowing down response, especially at half/full time.
