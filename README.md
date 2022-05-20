@@ -15,6 +15,7 @@ PinballY
   - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
   - FlexDMD.js      Adjusted/compatible version of vbousquet's https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
+                    Display modes driven from array rather than code
   - AttractFade.js  Fade Playfield, DMD and Backglass with ~80% black overlay in attract, aka inactivity mode 
 
 
