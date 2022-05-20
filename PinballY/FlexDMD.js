@@ -6,6 +6,9 @@
 //	Original credit:	vbousquet
 //
 //	Formatting minor tweaks & testing with other scripts
+//	Array driven display sequencing (edit mainSequence to adjust)
+//
+//	EARLY DAYS - more still messy!
 //
 //	R.Lincoln		May 2022
 //
@@ -30,38 +33,342 @@
 	- slight adjustments by GSadventure
 */
 
-//	Check for a new version of PinballY on each launch (default is false to limit the load on PinballY's servers)
 //
-let checkPinballYUpdate = false;
+//	Display sequencer constants reference
+//
+//	Brightness	b0 - b15
+//
+//	Time delay ms	Any positive number, delay between steps in milliseconds
+//
+//	Transitions	FadeIn, fadeOut
+//			zoomIn, zoomOut
+//			scrollOnLeft, scrollOffLeft
+//			scrollOnRight, scrollOffRight
+//			scrollOnUp, scrollOffUp
+//			scrollOnDown, scrollOffDown
+//			cut
+//
+//	Content
+//			Any string		Alternates between top/bottom line
+//			String ending in
+//				.png, .jpg	Path to an image
+//				.gif		Path to an animation animation
+//
+//			title			Current game title
+//			manuf			Current game manufacturer name/image/animation
+//			gameStats
+//			globalStats
+//			highScores		Scrolling display of high scores
+//
 
+//	Brightness
+const b0=0, b1=-1, b2=-2, b3=-3, b4=-4, b5=-5, b6=-6, b7=-7, b8=-8, b9=-9, b10=-10, b11=-11, b12=-12, b13=-13, b14=-14, b15=-15;
+
+//	Timing any positive number ms
+
+//	Transitions
+const fadeIn=-100, fadeOut=-101, zoomIn=-102, zoomOut=-103, scrollOffLeft=-104, scrollOffRight=-105;
+const scrollOnLeft=-106, scrollOnRight=-107, scrollOffUp=-108, scrollOffDown=-109, scrollOnUp=-110, scrollOnDown=-111;
+const cutIn=-114, cutOut=-115;
+
+//	Special display
+const title=-200, manuf=-201, gameStats=-202, globalStats=-203, highScores=-204;
+
+
+//
+//	Display sequencers used to drive the DMD content
+//
+//	Note:
+//		Each element, except the last must be separated with a comma
+//		Case is important for keywords.
+//
+const mainSequence = [
+	b15, 2000,					// sticky max brightness 2 second gaps
+
+	scrollOnLeft, scrollOffUp,
+	"Richard's", b10, "Pinball Machine", b15,	// constant strings -  different brightness on each line
+
+	fadeIn, fadeOut,
+	title,
+	manuf,
+
+	cutIn,
+	"./scripts/dmds/Misc/Push Start 128x32.gif",
+	"./scripts/dmds/Misc/Push Start 128x32.gif",
+	fadeIn,
+
+	highScores,
+
+//	gameStats,
+	globalStats,
+
+//	"Test","",					// Large single line
+//	"Test2"," ",					// Top line
+//	" ","Test3"					// Bottom line
+
+];
+
+
+//
+//	Attract mode sequence (not working yet)
+//
+//	To use the same sequence cut/paste the same entries or use this command:
+//	const attractSequence = sequence;
+//
+const attractSequence = [
+	b10,						// dim the display
+	cutIn, cutOut,
+	"Press a button",""
+//	"./scripts/dmds/Misc/Push Start.gif"		// BUG - animation not working in attract mode
+];
+
+
+
+
+//	Build the DMD display from the sequence arrays
+//
+function buildDMDDisplay(info, sequence) {
+	var i, j;
+	var bright = 15;
+	var transIn = 14, transOut = 14;
+	var delay = 1000;
+	var text1, bright1;
+
+	for(i = 0; i < sequence.length; i++) {
+		j = sequence[i];
+		switch(j) {
+		case b0: case b1: case b2: case b3: case b4:	// brightness
+		case b5: case b6: case b7: case b8: case b9:
+		case b10: case b11: case b12: case b13: case b14:
+		case b15:
+			bright = j * -1;
+			break;
+
+		case fadeIn:					// transition in
+		case zoomIn:
+		case scrollOnLeft: case scrollOnRight:
+		case scrollOnUp: case scrollOnDown:
+		case cutIn:
+			transIn = j * -1 -100;
+			break;
+
+		case fadeOut:					// transition out
+		case zoomOut:
+		case scrollOffLeft: case scrollOffRight:
+		case scrollOffUp: case scrollOffDown:
+		case cutIn:
+			transOut = j * -1 -100;
+			break;
+		case cutOut:
+			transOut = j * -1 -101;
+			break;
+
+		case title:					// Title
+			DMDTitle(bright, transIn, delay, transOut);
+			break;
+
+		case manuf:					// Manufacturer
+			DMDManufacturer(bright, transIn, delay, transOut);
+			break;
+
+		case gameStats:					// Game Statistics
+			DMDGameStats(bright, transIn, delay, transOut);
+			break;
+
+		case globalStats:				// Global/machine statistics
+			DMDGlobalStats(bright, transIn, delay, transOut);
+			break;
+
+		case highScores:				// High score table
+			DMDHighScores(bright, transIn, delay, transOut);
+			break;
+
+		// Fallthrough, could be a delay number, path to a file or explicit string content
+		//
+		default:
+			if(Number.isInteger(j)) {		// Numeric - delay
+				delay = j;
+				break;
+			}
+
+			switch(j.slice(-4)) {
+			case ".png":				// Image file path
+			case ".jpg":
+				if (fso.FileExists(j)) {
+					udmd.DisplayScene00(j, "", 15, "", 15, transIn, delay, transOut);
+				}
+
+			case ".gif":				// Animation file path, play exactly once
+				if (fso.FileExists(j)) {
+					let video = dmd.NewVideo(j, j);				// to get video length
+					let id = udmd.RegisterVideo(2, false, j);		// scale mode, loop, name
+					udmd.DisplayScene00(id, "", 15, "", 15, transIn, video.Length *1000, transOut);
+				}
+				break;
+
+
+			default:				// Fallthrough - its text content
+				if(text1 === undefined) {	// Always two lines, save the first line render on the second
+					text1 = j;
+					bright1 = bright;
+					break;
+				}
+				udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", text1, bright1, j, bright, transIn, delay, transOut);
+				text1 = undefined;
+				bright1 = undefined;			
+				break;
+			}
+
+			break;
+		}
+	}	
+
+}
+
+
+//	Render title
+//	Image/animation or just text
+//
+function DMDTitle(bright, transIn, delay, transOut) {
+
+	var hasTitle = false;
+	var extensions = [".gif", ".avi", ".png"];
+
+	if (info.mediaName != null) {				// Look for an image/animation file
+
+		for (var i = 0; i < extensions.length; i++) {
+			if (fso.FileExists("./Scripts/dmds/tables/" + info.mediaName + extensions[i])) {
+				queueVideo("./Scripts/dmds/tables/" + info.mediaName + extensions[i], transIn, transOut, 0);
+				hasTitle = true;
+				break;
+			}
+		}
+
+	}
+
+	if (!hasTitle) {					// No image - use text
+		var name = info.title.trim();
+		var subname = "";
+		if (name.indexOf('(') != -1) {			// trim anything in brackets
+			var sep = info.title.indexOf('(');
+			name = info.title.slice(0, sep - 1).trim();
+		}
+		if (name.length >= 16) {
+			for (var i = 15; i > 0; i--) {		// try to split long names at a space
+				if (name.charCodeAt(i) == 32) {
+					subname = name.slice(i).trim();
+					name = name.slice(0, i).trim();
+					break;
+				}
+			}
+		}
+		if(subname.length >= 16) {			// still long - use the first word
+			if (subname.indexOf(' ') != -1) {
+				var sep = subname.indexOf(' ');
+				subname = subname.slice(0, sep).trim();
+			}
+		}
+ 
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", name, bright, subname, bright, transIn, delay, transOut);
+	}
+
+}
+
+//	Render Manufacturer
+//	To-do - move away from lookup table to just browsing the filesystem
+//
+function DMDManufacturer(bright, transIn, delay, transOut) {
+	let manufacturers = {
+		"Aliens vs Pinball": ["./Scripts/dmds/manufacturers/Aliens vs Pinball.gif"],
+		"Bally": ["./Scripts/dmds/manufacturers/bally.gif"],
+		"Bethesda Pinball": ["./Scripts/dmds/manufacturers/Bethesda Pinball.gif"],
+		"Capcom": ["./Scripts/dmds/manufacturers/capcom.gif"],
+		"Data East": ["./Scripts/dmds/manufacturers/dataeast-1.gif", "./Scripts/dmds/manufacturers/dataeast-2.gif"],
+		"Foxnext Games": ["./Scripts/dmds/manufacturers/Foxnext Games.gif"],
+		"Gottlieb": ["./Scripts/dmds/manufacturers/gottlieb.gif"],
+		"Jurassic Pinball": ["./Scripts/dmds/manufacturers/Jurassic Pinball.gif"],
+		"Marvel": ["./Scripts/dmds/manufacturers/Marvel.gif"],
+		"Midway": ["./Scripts/dmds/manufacturers/bally.gif"],
+		"Premier": ["./Scripts/dmds/manufacturers/premier.gif"],
+		"Rowamet": ["./Scripts/dmds/manufacturers/Rowamet.gif"],	
+		"Sega": ["./Scripts/dmds/manufacturers/sega.gif"],
+		"Spooky": ["./Scripts/dmds/manufacturers/Spooky.gif"],
+		"Star Wars Pinball": ["./Scripts/dmds/manufacturers/Star Wars Pinball.gif"],
+		"Stern": ["./Scripts/dmds/manufacturers/stern.gif"],
+		"Taito": ["./Scripts/dmds/manufacturers/Taito.gif"],
+		"The Walking Dead": ["./Scripts/dmds/manufacturers/The Walking Dead.gif"],
+		"Universal Pinball": ["./Scripts/dmds/manufacturers/Universal Pinball.gif"],
+		"Williams": ["./Scripts/dmds/manufacturers/williams.gif"],
+		"WilliamsFX3Pinball": ["./Scripts/dmds/manufacturers/williams.gif"],
+		"VPX": ["./Scripts/dmds/manufacturers/VPX.gif"],
+		"VALVe": ["./Scripts/dmds/manufacturers/VALVe.gif"],
+		"Zaccaria": ["./Scripts/dmds/manufacturers/Zaccaria.gif"],
+		"Zen Studios": ["./Scripts/dmds/manufacturers/Zen Studios.gif"]
+	}
+
+
+    	// Little workaround for special character in Williams "TM" Pinball Problem from FX3,
+ 	// If its Williams and it has more than 8 chars
+    	let manufacturer_temp = info.manufacturer;
+	if (manufacturer_temp != null && (manufacturer_temp.substr(0,8) == "Williams") && (manufacturer_temp.length > 8)) {
+		manufacturer_temp = "WilliamsFX3Pinball";
+	}
+
+	// to-do	needs moving from an array to just reading the folder
+	//
+	if (manufacturer_temp in manufacturers) {
+		var medias = manufacturers[manufacturer_temp];
+		var media = medias[Math.floor(Math.random() * medias.length)];	// choose random from multiple options
+		queueVideo(media, transIn, transOut, 0);
+ 
+	} else if (info.manufacturer !== undefined) {
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", info.manufacturer, bright, "", bright, transIn, delay, transOut);
+	}
+	
+}
+
+//	Render game statistics
+//
+function DMDGameStats(bright, transIn, delay, transOut) {
+	if (info.rating >= 0)
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " Rating " + info.rating, bright, "Play time: " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+	else
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " times", bright, "Playtime " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+}
+
+//	Render global statistics
+//
+function DMDGlobalStats(bright, transIn, delay, transOut) {
+	var totalCount = 0;
+	var totalTime = 0;
+	var nGames = gameList.getGameCount();
+	for (var i = 0; i < nGames; i++) {
+		var inf = gameList.getGame(i);
+		totalCount += inf.playCount;
+		totalTime += inf.playTime;
+	}
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table plays:" , bright, "" + totalCount, bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
+}
+
+//	Render high score table
+//
+function DMDHighScores(bright, transIn, delay, transOut) {
+	if(hiscores[info.id] != null) {
+		udmd.ScrollingCredits("", hiscores[info.id].join("|"), bright, 14, hiscores[info.id].length *400 +2800, 14);
+	}
+}
+
+
+//	Attract mode global flag
+//
+let attractMode = false;
 
 // 	If true, use the table rom as the game name, like VPinMame does. 
 //	This allow to have the same styling of the DMD
 // 	as in game but it also needs to release/create DMD after each table change which may lead to delay or stuttering.
 //
 let useTableRom = false
-
-
-//	Check for new release of PinballY (taken from http://mjrnet.org/pinscape/downloads/PinballY/Help/UpdateCheckExample.html)
-//
-if (checkPinballYUpdate) {
-	let request = new HttpRequest();
-	request.open("GET", "http://mjrnet.org/pinscape/downloads/PinballY/VersionHistory.txt", true);
-	request.send().then(reply =>
-	{
-		if (/^(\d\d)-(\d\d)-(\d\d\d\d) \(\d+\.\d+\.\d+ .+\)$/mi.test(reply))
-		{
-			let mm = +RegExp.$1 - 1, dd = +RegExp.$2, yyyy = +RegExp.$3;
-			let onlineDate = new Date(Date.UTC(yyyy, mm, dd));
-			if (onlineDate > systemInfo.version.buildDate)
-				mainWindow.statusLines.upper.add("A new version of PinballY is available!");
-		}
-	}).catch(error => {
-		logfile.log(
-			"The Javascript version update checker ran into a problem!\nJavascript error: %s\nStack:\n%s",
-			error.message, error.stack);
-	});
-}
 
 
 //	For debugging purposes
@@ -122,37 +429,11 @@ let dmd = null;
 let udmd = null;
 let hiscores = {};
 let info = null;						// Current PBY gameinfo object
-let shownInfo = null;
+let shownInfo = null;						// Current PBY gameinfo displayed on the DMD
 let loopCount = 0;						// DMDUpdate state
 let fso = createAutomationObject("Scripting.FileSystemObject");
-let updater;
-let manufacturers = {
-	"Aliens vs Pinball": ["./Scripts/dmds/manufacturers/Aliens vs Pinball.gif"],
-	"Bally": ["./Scripts/dmds/manufacturers/bally.gif"],
-	"Bethesda Pinball": ["./Scripts/dmds/manufacturers/Bethesda Pinball.gif"],
-	"Capcom": ["./Scripts/dmds/manufacturers/capcom.gif"],
-	"Data East": ["./Scripts/dmds/manufacturers/dataeast-1.gif", "./Scripts/dmds/manufacturers/dataeast-2.gif"],
-	"Foxnext Games": ["./Scripts/dmds/manufacturers/Foxnext Games.gif"],
-	"Gottlieb": ["./Scripts/dmds/manufacturers/gottlieb.gif"],
-	"Jurassic Pinball": ["./Scripts/dmds/manufacturers/Jurassic Pinball.gif"],
-	"Marvel": ["./Scripts/dmds/manufacturers/Marvel.gif"],
-	"Midway": ["./Scripts/dmds/manufacturers/bally.gif"],
-	"Premier": ["./Scripts/dmds/manufacturers/premier.gif"],
-	"Rowamet": ["./Scripts/dmds/manufacturers/Rowamet.gif"],	
-	"Sega": ["./Scripts/dmds/manufacturers/sega.gif"],
-	"Spooky": ["./Scripts/dmds/manufacturers/Spooky.gif"],
-	"Star Wars Pinball": ["./Scripts/dmds/manufacturers/Star Wars Pinball.gif"],
-	"Stern": ["./Scripts/dmds/manufacturers/stern.gif"],
-	"Taito": ["./Scripts/dmds/manufacturers/Taito.gif"],
-	"The Walking Dead": ["./Scripts/dmds/manufacturers/The Walking Dead.gif"],
-	"Universal Pinball": ["./Scripts/dmds/manufacturers/Universal Pinball.gif"],
-	"Williams": ["./Scripts/dmds/manufacturers/williams.gif"],
-	"WilliamsFX3Pinball": ["./Scripts/dmds/manufacturers/williams.gif"],
-	"VPX": ["./Scripts/dmds/manufacturers/VPX.gif"],
-	"VALVe": ["./Scripts/dmds/manufacturers/VALVe.gif"],
-	"Zaccaria": ["./Scripts/dmds/manufacturers/Zaccaria.gif"],
-	"Zen Studios": ["./Scripts/dmds/manufacturers/Zen Studios.gif"]
-}
+let updater;							// UpdateDMD's callback timer
+
 
 
 // 	logfile.log(getMethods(dmd).join("\n"));
@@ -173,7 +454,7 @@ function TestMarshalling() {
 //
 function UpdateDMD() {
 
-	//	If called before the timer, just reset it
+	//	If called by the timer, clear it
 	//
 	if (updater !== undefined) clearTimeout(updater);
 	updater = undefined;
@@ -184,7 +465,7 @@ function UpdateDMD() {
 	if (dmd == null) {
 		dmd = createAutomationObject("FlexDMD.FlexDMD");
 		dmd.GameName = "PinballY";
-		dmd.RenderMode = 1; // 0 = Gray 4 shades, 1 = Gray 16 shades, 2 = Full color
+		dmd.RenderMode = 1; 				// 0 = Gray 4 shades, 1 = Gray 16 shades, 2 = Full color
 		dmd.Width = 128;
 		dmd.Height = 32;
 		dmd.Show = true;
@@ -192,11 +473,10 @@ function UpdateDMD() {
 		udmd = dmd.NewUltraDMD();
 	}
 	
-	if (dmd.Run == false) return;
+	if (dmd.Run == false) return;				// if no dmd running yet
+	if (info == null) return;				// if no game selected yet
 
-	if (info == null) return;
-
-	//	If its still rendering or the same game, set a timer and come back later
+	//	If its still rendering and the same game, set a timer and come back later
 	//
 	if (udmd.IsRendering() && shownInfo != null && info.id == shownInfo.id) {
 		updater = setTimeout(UpdateDMD, 1000);
@@ -208,13 +488,12 @@ function UpdateDMD() {
 	dmd.LockRenderThread();
 	udmd.CancelRendering();
 
-	if (shownInfo == null || info.id != shownInfo.id) {
+	if (shownInfo == null || info.id != shownInfo.id) {	// if first time in on a new game
 		loopCount = 0;
 		shownInfo = info;
-	} else {
+	} else {						// else next step on the same game
 		loopCount++;
 	}			
-
 
 
 	//	This will reopen the DMD with the right ROM name, allowing for ROM customization in dmddevice.ini
@@ -235,111 +514,15 @@ function UpdateDMD() {
 		}
 	}
 
-	let transitionMargin = (30 * 1000) / 60;
-	
 
-	//	Title
+	//	Build the display sequence
 	//
-	var hasTitle = false;
-	if (info.mediaName != null) {
-		var extensions = [".gif", ".avi", ".png"];
-		for (var i = 0; i < extensions.length; i++) {
-
-			if (fso.FileExists("./Scripts/dmds/tables/" + info.mediaName + extensions[i])) {
-				queueVideo("./Scripts/dmds/tables/" + info.mediaName + extensions[i], 0, 8, transitionMargin);
-
-				hasTitle = true;
-				break;
-			}
-		}
+	if(!attractMode) {
+		buildDMDDisplay(info, mainSequence);		// Primary sequence
+	} else {
+		buildDMDDisplay(info, attractSequence);		// Attract mode sequence
 	}
-	if (!hasTitle) {
-		var name = info.title.trim();
-		var subname = "";
-		if (name.indexOf('(') != -1) {
-			var sep = info.title.indexOf('(');
-			name = info.title.slice(0, sep - 1).trim();
-		}
-		if (name.length >= 16) {
-			var split = 16;
-			for (var i = 15; i > 0; i--) {
-				if (name.charCodeAt(i) == 32) {
-					subname = name.slice(i).trim();
-					name = name.slice(0, i).trim();
-					break;
-				}
-			}
-		}
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", name, 15, subname, 15, 0, 5000, 8);
-	}
-
-
-	//	Manufacturer
-	//
-    	let manufacturer_temp = info.manufacturer;
-
-    	// Little workaround for special character in Williams "TM" Pinball Problem from FX3,
- 	// If its Williams and it has more than 8 chars
-    	if (manufacturer_temp != null && (manufacturer_temp.substr(0,8) == "Williams") && (manufacturer_temp.length > 8)) {
-        	manufacturer_temp = "WilliamsFX3Pinball";
-    	}
-
- 	if (manufacturer_temp in manufacturers) {
-        	var medias = manufacturers[manufacturer_temp];
-        	var media = medias[Math.floor(Math.random() * medias.length)];
-        	queueVideo(media, 0, 8, transitionMargin);
- 
-	} else if (info.manufacturer !== undefined) {
-        	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", info.manufacturer, 15, "", 15, 10, 3000, 8);
- 	}
-
-/*
-	//	Stats
-	//
-	if (info.rating >= 0)
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " Rating " + info.rating, 15, "Play time: " + info.playTime.toHHMMSS(), 15, 10, 3000, 8);
-	else
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " times", 15, "Playtime " + info.playTime.toHHMMSS(), 15, 10, 3000, 8);
-*/
-
-/*
-	//	Insert Coin (every 4 loops)
-	//
-	if (((loopCount + 0) & 3) == 0) {
-		queueVideo("./Scripts/dmds/misc/insertcoin.gif", 10, 14, 0);
-		udmd.DisplayScene00("./Scripts/dmds/misc/insertcoin.gif", "", 15, "", 15, 14, 1399, 14);
-		udmd.DisplayScene00("./Scripts/dmds/misc/insertcoin.gif", "", 15, "", 15, 14, 1399, 14);
-	}
-*/
-
-
-	//	Global stats (every 4 loops)
-	//
-	if (((loopCount + 1) & 3) == 0) {
-		var totalCount = 0;
-		var totalTime = 0;
-		var nGames = gameList.getGameCount();
-		for (var i = 0; i < nGames; i++) {
-			var inf = gameList.getGame(i);
-			totalCount += inf.playCount;
-			totalTime += inf.playTime;
-		}
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table plays:" , 15, "" + totalCount, 15, 10, 1500, 8);
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table time:" , 15, "" + totalTime.toDDHHMMSS(), 15, 10, 1500, 8);
-	}
-	
-
-	//	Push Start
-	//
-	udmd.DisplayScene00("./Scripts/dmds/misc/Push Start 128x32.gif", "", 15, "", 15, 0, 5000, 1);
-	
-
-	//	Highscores
-	//
-	if (hiscores[info.id] != null) {
-		udmd.ScrollingCredits("", hiscores[info.id].join("|"), 15, 14, 2800 + hiscores[info.id].length * 400, 14);
-	}
-	
+		
 
 	//	done, unlock the DMD render thread
 	//
@@ -349,8 +532,11 @@ function UpdateDMD() {
 
 	//	Call myself for the next update
 	//
-	updater = setTimeout(UpdateDMD, 10000);
+	updater = setTimeout(UpdateDMD, 1000);
 }
+
+
+
 
 //
 //	PinballY Hooks
@@ -365,7 +551,7 @@ overlay.clear("#ff000000");
 //	Game selected/wheel moved
 //
 gameList.on("gameselect", event => {
-	logfile.log("> gameselect");
+	logfile.log("> gameselect " + event.game.title);
 	info = event.game;
 	if (useTableRom) {
 		if (updater !== undefined) clearTimeout(updater);
@@ -389,9 +575,9 @@ gameList.on("highscoresready", event => {
 			event.scores[i] = event.scores[i].replace(/\u00FF/g, ',');
 		}
 		hiscores[event.game.id] = event.scores;
-		if (shownInfo != null && event.game.id == shownInfo.id) {
-			udmd.ScrollingCredits("", hiscores[shownInfo.id].join("|"), 15, 14, 2800 + hiscores[shownInfo.id].length * 400, 14);
-		}
+//		if (shownInfo != null && event.game.id == shownInfo.id) {
+//			udmd.ScrollingCredits("", hiscores[shownInfo.id].join("|"), 15, 14, 2800 + hiscores[shownInfo.id].length * 400, 14);
+//		}
 	}
 });
 
@@ -402,7 +588,7 @@ mainWindow.on("prelaunch", event => {
 	logfile.log("> launch");
 	if (dmd != null) {
 		udmd.CancelRendering();
-		dmd.Run = false;
+		dmd.Run = false;					// stop drawing
 	}
 });
 
@@ -411,9 +597,29 @@ mainWindow.on("prelaunch", event => {
 //
 mainWindow.on("postlaunch", event => {
 	logfile.log("> postlaunch");
-	if (dmd != null) dmd.Run = true;
+	if (dmd != null) dmd.Run = true;				// start drawing
 	UpdateDMD();
 });
+
+/*
+
+	NOT WORKING CLEANLY YET
+
+//	Attract mode detection
+//	Use an alternate display sequence
+//
+mainWindow.on("attractmodestart", event => {
+	attractMode = true;
+	shownInfo = null;						// force a DMD refresh
+	UpdateDMD();
+});
+
+mainWindow.on("attractmodeend", event => {
+	attractMode = false;
+	shownInfo = null;						// force a DMD refresh
+	UpdateDMD();
+});
+*/
 
 
 logfile.log("[FlexDMD] Initialised");
