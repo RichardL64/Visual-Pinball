@@ -86,7 +86,7 @@ const mainSequence = [
 	b15, 2000,					// sticky max brightness 2 second gaps
 
 	scrollOnLeft, scrollOffUp,
-	"Richard's", b10, "Pinball Machine", b15,	// constant strings -  different brightness on each line
+	"Richard's", b10, "Virtual Pinball", b15,	// constant strings -  different brightness on each line
 
 	fadeIn, fadeOut,
 	title,
