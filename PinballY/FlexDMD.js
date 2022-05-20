@@ -253,7 +253,7 @@ function DMDTitle(bright, transIn, delay, transOut) {
 			var sep = info.title.indexOf('(');
 			name = info.title.slice(0, sep - 1).trim();
 		}
-		if (name.length >= 16) {
+		if (name.length > 16) {
 			for (var i = 15; i > 0; i--) {		// try to split long names at a space
 				if (name.charCodeAt(i) == 32) {
 					subname = name.slice(i).trim();
@@ -262,7 +262,7 @@ function DMDTitle(bright, transIn, delay, transOut) {
 				}
 			}
 		}
-		if(subname.length >= 16) {			// still long - use the first word
+		if(subname.length > 16) {			// still long - use the first word
 			if (subname.indexOf(' ') != -1) {
 				var sep = subname.indexOf(' ');
 				subname = subname.slice(0, sep).trim();
