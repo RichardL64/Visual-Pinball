@@ -2,9 +2,6 @@
 //	FlexDMD
 //	https://github.com/RichardL64
 //
-//	Original source:	https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
-//	Original credit:	vbousquet
-//
 //	For best results requires FlexDMD & Freezy installation:
 //				https://github.com/vbousquet/flexdmd/releases
 //				https://github.com/freezy/dmd-extensions/releases
@@ -12,12 +9,16 @@
 //	Formatting minor tweaks & testing with other scripts
 //	Array driven display sequencing (edit mainSequence to adjust)
 //
-//	EARLY DAYS - more still messy!
+//	EARLY DAYS - still messy but working!
 //
 //	R.Lincoln		May 2022
 //
 
 /*
+	Original source:	https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
+	Original credit:	vbousquet
+
+
 	Custom DMD screen script that shows informations on the selected game (more or less the same than PinballY)
 	 using custom medias (animated company logo, table title screen):
 	
@@ -44,7 +45,7 @@
 //
 //	Time delay ms	Any positive number, delay between steps in milliseconds
 //
-//	Loop variation				
+//	Loop variation	Drives when following entries are used		
 //			every			123456789012
 //			everyOdd		1.1.1.1.1.1.	..every odd loop
 //			everyEven		.1.1.1.1.1.1	..every even loop
@@ -104,22 +105,24 @@ const mainSequence = [
 	b15, 2000,					// sticky max brightness 2 second gaps
 
 	everyOdd,					// odd loop numbers
-	scrollOnLeft, scrollOffUp,
+	scrollOnLeft, 
+
+	everyEven, 					// even loop numbers
+	scrollOnRight,
+
+	every, 						// every loop
+	scrollOffUp,
 	"Richard's", b10, "Virtual Pinball", b15,	// constant strings -  different brightness on each line
 
-	everyEven,					// even loop numbers
-	scrollOnRight, scrollOffUp,
-	"Richard's", b10, "Virtual Pinball", b15,
-
-	every, fadeIn, fadeOut,
+	fadeIn, fadeOut,
 	title,
 	manuf,
 
 	cutIn,
 	"./scripts/dmds/Misc/Push Start 128x32.gif",
 	"./scripts/dmds/Misc/Push Start 128x32.gif",
-	fadeIn,
 
+	fadeIn,
 	highScores,
 
 //	gameStats,
@@ -160,15 +163,33 @@ function buildDMDDisplay(info, sequence, loopCount) {
 
 	for(i = 0; i < sequence.length; i++) {
 		j = sequence[i];
+
+		//					Interpret loop variation and skip this entry if required
+		//
 		switch(j) {
-		case b0: case b1: case b2: case b3: case b4:	// brightness
+		case every:
+		case everyOdd:
+		case everyEven:
+		case every3rd:
+		case every4th:
+			loopFlag = j;
+			break;
+		default:
+			break;
+		}
+		if(!checkLoop(loopCount, loopFlag)) continue;		// <== if true, skip to the next entry
+
+		//					Interpret sequence entries
+		//
+		switch(j) {
+		case b0: case b1: case b2: case b3: case b4:		// brightness
 		case b5: case b6: case b7: case b8: case b9:
 		case b10: case b11: case b12: case b13: case b14:
 		case b15:
 			bright = j * -1;
 			break;
 
-		case fadeIn:					// transition in
+		case fadeIn:						// transition in
 		case zoomIn:
 		case scrollOnLeft: case scrollOnRight:
 		case scrollOnUp: case scrollOnDown:
@@ -176,7 +197,7 @@ function buildDMDDisplay(info, sequence, loopCount) {
 			transIn = j * -1 -100;
 			break;
 
-		case fadeOut:					// transition out
+		case fadeOut:						// transition out
 		case zoomOut:
 		case scrollOffLeft: case scrollOffRight:
 		case scrollOffUp: case scrollOffDown:
@@ -187,69 +208,54 @@ function buildDMDDisplay(info, sequence, loopCount) {
 			transOut = j * -1 -101;
 			break;
 
-		case every:					// loop number variation
-		case everyOdd:
-		case everyEven:
-		case every3rd:
-		case every4th:
-			loopFlag = j;
-			break;
-
 		case title:						// Title
-			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDTitle(bright, transIn, delay, transOut);
 			break;
 
 		case manuf:						// Manufacturer
-			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDManufacturer(bright, transIn, delay, transOut);
 			break;
 
 		case gameStats:						// Game Statistics
-			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDGameStats(bright, transIn, delay, transOut);
 			break;
 
 		case globalStats:					// Global/machine statistics
-			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDGlobalStats(bright, transIn, delay, transOut);
 			break;
 
 		case highScores:					// High score table
-			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDHighScores(bright, transIn, delay, transOut);
 			break;
 
-		// Fallthrough, could be a delay number, path to a file or explicit string content
+		// Fallthrough, could be
+		//	A loop control value 'everyxxx' if negative
+		//	A delay number, path to a file or explicit string content
 		//
 		default:
-			if(Number.isInteger(j)) {				// Numeric - delay
-				delay = j;
+			if(Number.isInteger(j)) {				// Numeric - delay if +ve
+				if(j > 0) delay = j;
 				break;
 			}
 
 			switch(j.slice(-4)) {
 			case ".png":						// Image file path
 			case ".jpg":
-				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 				if (fso.FileExists(j)) {
 					udmd.DisplayScene00(j, "", 15, "", 15, transIn, delay, transOut);
 				}
 				break;
 
 			case ".gif":						// Animation file path, play once
-				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 				if (fso.FileExists(j)) {
 					let video = dmd.NewVideo(j, j);				// to get video length
 					let id = udmd.RegisterVideo(2, false, j);		// scale mode, loop, name
-
 					udmd.DisplayScene00(id, "", 15, "", 15, transIn, video.Length *1000, transOut);
 				}
 				break;
 
 
 			default:						// Fallthrough - its text content
-				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 				if(text1 === undefined) {			// Always two lines, save the first line render on the second
 					text1 = j;
 					bright1 = bright;
@@ -551,12 +557,16 @@ function UpdateDMD() {
 	if (dmd.Run == false) return;				// if no dmd running yet
 	if (info == null) return;				// if no game selected yet
 
+logfile.log("UpdateDMD 1");
+
 	//	If its still rendering and the same game, set a timer and come back later
 	//
 	if (udmd.IsRendering() && shownInfo != null && info.id == shownInfo.id) {
 		updater = setTimeout(UpdateDMD, 1000);
 		return;
 	}
+
+logfile.log("UpdateDMD 2");
 	
 	//	Lock DMD render to start updates
 	//
