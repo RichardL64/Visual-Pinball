@@ -40,24 +40,35 @@
 //
 //	Time delay ms	Any positive number, delay between steps in milliseconds
 //
+//	Loop variation
+//			every			Display every DMD loop
+//			everyOdd		..every odd loop
+//			everyEven		..every even loop
+//			every3rd, every4th	..every 3rd, 4th loop
+//
 //	Transitions	FadeIn, fadeOut
 //			zoomIn, zoomOut
 //			scrollOnLeft, scrollOffLeft
 //			scrollOnRight, scrollOffRight
 //			scrollOnUp, scrollOffUp
 //			scrollOnDown, scrollOffDown
-//			cut
+//			cutIn, cutOut
 //
 //	Content
-//			Any string		Alternates between top/bottom line
 //			String ending in
 //				.png, .jpg	Path to an image
 //				.gif		Path to an animation animation
 //
+//			Pair of strings		Single, top and/or bottom line
+//				"big text",""
+//				" ","bottom line"
+//				"top line, " "
+//				"top","bottom"
+//
 //			title			Current game title
 //			manuf			Current game manufacturer name/image/animation
-//			gameStats
-//			globalStats
+//			gameStats		This game playcount & time
+//			globalStats		All games playcount & time
 //			highScores		Scrolling display of high scores
 //
 
@@ -74,6 +85,8 @@ const cutIn=-114, cutOut=-115;
 //	Special display
 const title=-200, manuf=-201, gameStats=-202, globalStats=-203, highScores=-204;
 
+//	Loop variation
+const every=-300, everyOdd=-301, everyEven=-302, every3rd=-303, every4th=-304;
 
 //
 //	Display sequencers used to drive the DMD content
@@ -85,10 +98,15 @@ const title=-200, manuf=-201, gameStats=-202, globalStats=-203, highScores=-204;
 const mainSequence = [
 	b15, 2000,					// sticky max brightness 2 second gaps
 
+	everyOdd,					// odd loop numbers
 	scrollOnLeft, scrollOffUp,
 	"Richard's", b10, "Virtual Pinball", b15,	// constant strings -  different brightness on each line
 
-	fadeIn, fadeOut,
+	everyEven,					// even loop numbers
+	scrollOnRight, scrollOffUp,
+	"Richard's", b10, "Virtual Pinball", b15,
+
+	every, fadeIn, fadeOut,
 	title,
 	manuf,
 
@@ -100,7 +118,7 @@ const mainSequence = [
 	highScores,
 
 //	gameStats,
-	globalStats,
+	every3rd, globalStats, every
 
 //	"Test","",					// Large single line
 //	"Test2"," ",					// Top line
@@ -127,11 +145,12 @@ const attractSequence = [
 
 //	Build the DMD display from the sequence arrays
 //
-function buildDMDDisplay(info, sequence) {
+function buildDMDDisplay(info, sequence, loopCount) {
 	var i, j;
 	var bright = 15;
 	var transIn = 14, transOut = 14;
 	var delay = 1000;
+	var loopFlag = every;
 	var text1, bright1;
 
 	for(i = 0; i < sequence.length; i++) {
@@ -163,45 +182,62 @@ function buildDMDDisplay(info, sequence) {
 			transOut = j * -1 -101;
 			break;
 
-		case title:					// Title
+		case every:					// loop number variation
+		case everyOdd:
+		case everyEven:
+		case every3rd:
+		case every4th:
+			loopFlag = j;
+			break;
+
+		case title:						// Title
+			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDTitle(bright, transIn, delay, transOut);
 			break;
 
-		case manuf:					// Manufacturer
+		case manuf:						// Manufacturer
+			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDManufacturer(bright, transIn, delay, transOut);
 			break;
 
-		case gameStats:					// Game Statistics
+		case gameStats:						// Game Statistics
+			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDGameStats(bright, transIn, delay, transOut);
 			break;
 
-		case globalStats:				// Global/machine statistics
+		case globalStats:					// Global/machine statistics
+			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDGlobalStats(bright, transIn, delay, transOut);
 			break;
 
-		case highScores:				// High score table
+		case highScores:					// High score table
+			if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 			DMDHighScores(bright, transIn, delay, transOut);
 			break;
 
 		// Fallthrough, could be a delay number, path to a file or explicit string content
 		//
 		default:
-			if(Number.isInteger(j)) {		// Numeric - delay
+			if(Number.isInteger(j)) {				// Numeric - delay
 				delay = j;
 				break;
 			}
 
 			switch(j.slice(-4)) {
-			case ".png":				// Image file path
+			case ".png":						// Image file path
 			case ".jpg":
+				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 				if (fso.FileExists(j)) {
 					udmd.DisplayScene00(j, "", 15, "", 15, transIn, delay, transOut);
 				}
+				break;
 
-			case ".gif":				// Animation file path, play exactly once
+			case ".gif":						// Animation file path, play once
+				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
 				if (fso.FileExists(j)) {
 					let video = dmd.NewVideo(j, j);				// to get video length
 					let id = udmd.RegisterVideo(2, false, j);		// scale mode, loop, name
+
 					udmd.DisplayScene00(id, "", 15, "", 15, transIn, video.Length *1000, transOut);
 				}
 				break;
@@ -213,7 +249,9 @@ function buildDMDDisplay(info, sequence) {
 					bright1 = bright;
 					break;
 				}
-				udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", text1, bright1, j, bright, transIn, delay, transOut);
+				if(checkLoop(loopCount, loopFlag)) {
+					udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", text1, bright1, j, bright, transIn, delay, transOut);
+				}
 				text1 = undefined;
 				bright1 = undefined;			
 				break;
@@ -223,6 +261,39 @@ function buildDMDDisplay(info, sequence) {
 		}
 	}	
 
+}
+
+
+//	Check loopcount
+//	Returns true if it should display on this loop
+//
+function checkLoop(loopCount, loopFlag) {
+
+	switch(loopFlag) {
+	case every:
+		return true;
+		break;
+
+	case everyOdd:
+		return (loopCount % 2 == 1);
+		break;
+
+	case everyEven:
+		return (loopCount % 2 == 0);
+		break;
+
+	case every3rd:
+		return (loopCount % 3 == 0);
+		break;
+
+	case every4th:						// potentially needs 4th odd/even to offset one frame
+		return (loopCount % 4 == 0);
+		break;
+
+	default:
+		return true;
+		break;
+	}
 }
 
 
@@ -331,9 +402,9 @@ function DMDManufacturer(bright, transIn, delay, transOut) {
 //
 function DMDGameStats(bright, transIn, delay, transOut) {
 	if (info.rating >= 0)
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " Rating " + info.rating, bright, "Play time: " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "This table " + info.playCount + " Rating " + info.rating, bright, "Play time: " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
 	else
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Played " + info.playCount + " times", bright, "Playtime " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "This table " + info.playCount + " times", bright, "Play time " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
 }
 
 //	Render global statistics
@@ -347,8 +418,8 @@ function DMDGlobalStats(bright, transIn, delay, transOut) {
 		totalCount += inf.playCount;
 		totalTime += inf.playTime;
 	}
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table plays:" , bright, "" + totalCount, bright, transIn, delay, transOut);
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "All table time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
+//	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total games played:" , bright, "" + totalCount, bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
 }
 
 //	Render high score table
@@ -518,9 +589,9 @@ function UpdateDMD() {
 	//	Build the display sequence
 	//
 	if(!attractMode) {
-		buildDMDDisplay(info, mainSequence);		// Primary sequence
+		buildDMDDisplay(info, mainSequence, loopCount);		// Primary sequence
 	} else {
-		buildDMDDisplay(info, attractSequence);		// Attract mode sequence
+		buildDMDDisplay(info, attractSequence, loopCount);	// Attract mode sequence
 	}
 		
 
