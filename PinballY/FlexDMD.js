@@ -428,8 +428,8 @@ function DMDGlobalStats(bright, transIn, delay, transOut) {
 		totalCount += inf.playCount;
 		totalTime += inf.playTime;
 	}
-//	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total games played:" , bright, "" + totalCount, bright, transIn, delay, transOut);
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total on time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total tables loaded:" , bright, "" + totalCount, bright, transIn, delay, transOut);
 }
 
 //	Render high score table
