@@ -40,11 +40,12 @@
 //
 //	Time delay ms	Any positive number, delay between steps in milliseconds
 //
-//	Loop variation
-//			every			Display every DMD loop
-//			everyOdd		..every odd loop
-//			everyEven		..every even loop
-//			every3rd, every4th	..every 3rd, 4th loop
+//	Loop variation				
+//			every			123456789012
+//			everyOdd		1.1.1.1.1.1.	..every odd loop
+//			everyEven		.1.1.1.1.1.1	..every even loop
+//			every3rd		..1..1..1..1 
+//			every4th		...1...1...1
 //
 //	Transitions	FadeIn, fadeOut
 //			zoomIn, zoomOut
@@ -560,7 +561,7 @@ function UpdateDMD() {
 	udmd.CancelRendering();
 
 	if (shownInfo == null || info.id != shownInfo.id) {	// if first time in on a new game
-		loopCount = 0;
+		loopCount = 1;
 		shownInfo = info;
 	} else {						// else next step on the same game
 		loopCount++;
