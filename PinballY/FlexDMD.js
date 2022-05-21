@@ -557,8 +557,6 @@ function UpdateDMD() {
 	if (dmd.Run == false) return;				// if no dmd running yet
 	if (info == null) return;				// if no game selected yet
 
-logfile.log("UpdateDMD 1");
-
 	//	If its still rendering and the same game, set a timer and come back later
 	//
 	if (udmd.IsRendering() && shownInfo != null && info.id == shownInfo.id) {
@@ -566,8 +564,6 @@ logfile.log("UpdateDMD 1");
 		return;
 	}
 
-logfile.log("UpdateDMD 2");
-	
 	//	Lock DMD render to start updates
 	//
 	dmd.LockRenderThread();
@@ -660,9 +656,6 @@ gameList.on("highscoresready", event => {
 			event.scores[i] = event.scores[i].replace(/\u00FF/g, ',');
 		}
 		hiscores[event.game.id] = event.scores;
-//		if (shownInfo != null && event.game.id == shownInfo.id) {
-//			udmd.ScrollingCredits("", hiscores[shownInfo.id].join("|"), 15, 14, 2800 + hiscores[shownInfo.id].length * 400, 14);
-//		}
 	}
 });
 
