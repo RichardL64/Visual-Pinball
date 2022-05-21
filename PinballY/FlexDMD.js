@@ -244,15 +244,14 @@ function buildDMDDisplay(info, sequence, loopCount) {
 				break;
 
 
-			default:				// Fallthrough - its text content
-				if(text1 === undefined) {	// Always two lines, save the first line render on the second
+			default:						// Fallthrough - its text content
+				if(!checkLoop(loopCount, loopFlag)) break;	// ==>
+				if(text1 === undefined) {			// Always two lines, save the first line render on the second
 					text1 = j;
 					bright1 = bright;
 					break;
 				}
-				if(checkLoop(loopCount, loopFlag)) {
-					udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", text1, bright1, j, bright, transIn, delay, transOut);
-				}
+				udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", text1, bright1, j, bright, transIn, delay, transOut);
 				text1 = undefined;
 				bright1 = undefined;			
 				break;
