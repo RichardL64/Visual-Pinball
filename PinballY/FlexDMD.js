@@ -5,6 +5,10 @@
 //	Original source:	https://github.com/vbousquet/flexdmd/tree/master/Scripts/PinballY
 //	Original credit:	vbousquet
 //
+//	For best results requires FlexDMD & Freezy installation:
+//				https://github.com/vbousquet/flexdmd/releases
+//				https://github.com/freezy/dmd-extensions/releases
+//
 //	Formatting minor tweaks & testing with other scripts
 //	Array driven display sequencing (edit mainSequence to adjust)
 //
