@@ -136,8 +136,9 @@ const mainSequence = [
 	fadeIn,
 	highScores,
 
-//	gameStats,
-	every3rd, globalStats,				// global stats every 3rd loop
+	4000,
+	every3rd, gameStats,
+	every3rd2, globalStats,				// global stats every 3rd loop
 
 
 //	every3rd, "One", "",				// Test every third loop cycle
@@ -370,10 +371,7 @@ function DMDTitle(bright, transIn, delay, transOut) {
 		name = name.split("(")[0].trim();		// First string before ( delimiter
 		name = name.replace("&", "and");		// no &
 
-		if(name.length <=16) {
-			name = name.replace("'", "");		// no ' on single line large text
-
-		} else {					// name too long - split at space before char 16
+		if(name.length > 16) {				// name too long - split at space before char 16
 			for (let i = 15; i > 0; i--) {		
 				if (name[i] == " ") {
 					subname = name.slice(i).trim();
@@ -381,6 +379,10 @@ function DMDTitle(bright, transIn, delay, transOut) {
 					break;
 				}
 			}
+
+		} else {
+			name = name.replace("'", "");		// no ' on single line large text
+
 		}
 		if(subname.length > 16) {			// subname too long - use the first word
 			subname = subname.split(" ")[0].trim();	// First word before space
@@ -448,9 +450,9 @@ function DMDManufacturer(bright, transIn, delay, transOut) {
 //
 function DMDGameStats(bright, transIn, delay, transOut) {
 	if (info.rating >= 0)
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "This table " + info.playCount + " Rating " + info.rating, bright, "Play time: " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Loaded " + info.playCount + " Rating " + info.rating, bright, "Play time " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
 	else
-		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "This table " + info.playCount + " times", bright, "Play time " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
+		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Loaded " + info.playCount + " times", bright, "Play time " + info.playTime.toHHMMSS(), bright, transIn, delay, transOut);
 }
 
 //	Render global statistics
@@ -464,8 +466,8 @@ function DMDGlobalStats(bright, transIn, delay, transOut) {
 		totalCount += inf.playCount;
 		totalTime += inf.playTime;
 	}
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total on time:" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total tables loaded:" , bright, "" + totalCount, bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total tables loaded" , bright, "" + totalCount, bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play time" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
 }
 
 //	Render high score table
