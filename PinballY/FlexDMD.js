@@ -41,92 +41,108 @@
 //
 //	Display sequencer constants reference
 //
-//	Brightness	b0 - b15
-//
-//	Time delay ms	Any positive number, delay between steps in milliseconds
-//
-//	Loop variation	Drives when following entries are used		
-//			every			123456789012
-//			everyOdd		1.1.1.1.1.1.	..every odd loop
-//			everyEven		.1.1.1.1.1.1	..every even loop
-//			every3rd		..1..1..1..1 
-//			every4th		...1...1...1
-//
-//	Transitions	FadeIn, fadeOut
-//			zoomIn, zoomOut
-//			scrollOnLeft, scrollOffLeft
-//			scrollOnRight, scrollOffRight
-//			scrollOnUp, scrollOffUp
-//			scrollOnDown, scrollOffDown
-//			cutIn, cutOut
-//
-//	Content
-//			String ending in
-//				.png, .jpg	Path to an image
-//				.gif		Path to an animation animation
-//
-//			Pair of strings		Single, top and/or bottom line
-//				"big text",""
-//				" ","bottom line"
-//				"top line, " "
-//				"top","bottom"
-//
-//			title			Current game title
-//			manuf			Current game manufacturer name/image/animation
-//			gameStats		This game playcount & time
-//			globalStats		All games playcount & time
-//			highScores		Scrolling display of high scores
-//
+/*
+	Brightness	b0 - b15
+
+	Time delay ms	Any positive number, delay between steps in milliseconds
+
+	Loop variation	Drive which cycle of the DMD display to render an effect
+			The loop counter is reset to 1 for each game load	
+
+						123456789012...	DMD loop cycle
+
+			every			111111111111	Every loop
+			first			1...........	First loop only
+
+			half			xxxxxxxxxxxx	50% of the time randomly
+
+			everyOdd		1.1.1.1.1.1.	Every other loop
+			everyEven		.1.1.1.1.1.1
+
+			every3rd		1..1..1..1..	Every third loop
+			every3rd2		.1..1..1..1.
+			every3rd3		..1..1..1..1
+
+			every4th		...1...1...1	Every fourth loop
+
+	Transitions	FadeIn, fadeOut
+			zoomIn, zoomOut
+			scrollOnLeft, scrollOffLeft
+			scrollOnRight, scrollOffRight
+			scrollOnUp, scrollOffUp
+			scrollOnDown, scrollOffDown
+			cutIn, cutOut
+
+	Content
+			String ending in
+				.png, .jpg	Path to an image
+				.gif		Path to an animation animation
+
+			Pair of strings		Single, top and/or bottom line
+				"big text",""
+				" ","bottom line"
+				"top line, " "
+				"top","bottom"
+
+			title			Current game title
+			manuf			Current game manufacturer name/image/animation
+			gameStats		This game playcount & time
+			globalStats		All games playcount & time
+			highScores		Scrolling display of high scores
+*/
 
 //	Brightness
-const b0=0, b1=-1, b2=-2, b3=-3, b4=-4, b5=-5, b6=-6, b7=-7, b8=-8, b9=-9, b10=-10, b11=-11, b12=-12, b13=-13, b14=-14, b15=-15;
-
-//	Timing any positive number ms
+const 	b0=0, b1=-1, b2=-2, b3=-3, b4=-4, b5=-5, b6=-6, b7=-7, 
+		b8=-8, b9=-9, b10=-10, b11=-11, b12=-12, b13=-13, b14=-14, b15=-15;
 
 //	Transitions
-const fadeIn=-100, fadeOut=-101, zoomIn=-102, zoomOut=-103, scrollOffLeft=-104, scrollOffRight=-105;
-const scrollOnLeft=-106, scrollOnRight=-107, scrollOffUp=-108, scrollOffDown=-109, scrollOnUp=-110, scrollOnDown=-111;
-const cutIn=-114, cutOut=-115;
+const fadeIn=-100, fadeOut=-101, zoomIn=-102, zoomOut=-103, scrollOffLeft=-104, scrollOffRight=-105,
+	scrollOnLeft=-106, scrollOnRight=-107, scrollOffUp=-108, scrollOffDown=-109, scrollOnUp=-110, 
+	scrollOnDown=-111, cutIn=-114, cutOut=-115;
 
 //	Special display
 const title=-200, manuf=-201, gameStats=-202, globalStats=-203, highScores=-204;
 
 //	Loop variation
-const every=-300, everyOdd=-301, everyEven=-302, every3rd=-303, every4th=-304;
+const every=-300, everyOdd=-301, everyEven=-302, 
+	every3rd=-303, every3rd2=-304, every3rd3=-305, every4th=-306, first=-307, half=-308;
 
 //
 //	Display sequencers used to drive the DMD content
 //
 //	Note:
+//		The sequence is restarted for each game
 //		Each element, except the last must be separated with a comma
 //		Case is important for keywords.
 //
 const mainSequence = [
 	b15, 2000,					// sticky max brightness 2 second gaps
 
-	everyOdd,					// odd loop numbers
-	scrollOnLeft, 
+	scrollOnLeft,					// default scrollonleft
+	half, scrollOnRight,				// 50% chance use scrollonright
 
-	everyEven, 					// even loop numbers
-	scrollOnRight,
-
-	every, 						// every loop
+	first, 						// name on first loop only
 	scrollOffUp,
 	"Richard's", b10, "Virtual Pinball", b15,	// constant strings -  different brightness on each line
 
+	every,						// every loop for the rest
 	fadeIn, fadeOut,
 	title,
 	manuf,
 
 	cutIn,
 	"./scripts/dmds/Misc/Push Start 128x32.gif",
-	"./scripts/dmds/Misc/Push Start 128x32.gif",
 
 	fadeIn,
 	highScores,
 
 //	gameStats,
-	every3rd, globalStats, every
+	every3rd, globalStats,				// global stats every 3rd loop
+
+
+//	every3rd, "One", "",				// Test every third loop cycle
+//	every3rd2, "Two", "",
+//	every3rd3, "Threee", "",
 
 //	"Test","",					// Large single line
 //	"Test2"," ",					// Top line
@@ -168,9 +184,13 @@ function buildDMDDisplay(info, sequence, loopCount) {
 		//
 		switch(j) {
 		case every:
+		case first:
+		case half:
 		case everyOdd:
 		case everyEven:
 		case every3rd:
+		case every3rd2:
+		case every3rd3:
 		case every4th:
 			loopFlag = j;
 			break;
@@ -278,10 +298,17 @@ function buildDMDDisplay(info, sequence, loopCount) {
 //	Returns true if it should display on this loop
 //
 function checkLoop(loopCount, loopFlag) {
-
 	switch(loopFlag) {
 	case every:
 		return true;
+		break;
+
+	case first:
+		return (loopCount == 1);
+		break;
+
+	case half:
+		return (Math.random() < .5);
 		break;
 
 	case everyOdd:
@@ -293,8 +320,17 @@ function checkLoop(loopCount, loopFlag) {
 		break;
 
 	case every3rd:
-		return (loopCount % 3 == 0);
+		return ((loopCount +2) % 3 == 0);
 		break;
+
+	case every3rd2:
+		return ((loopCount +1) % 3 == 0);
+		break;
+
+	case every3rd3:
+		return ((loopCount +0) % 3 == 0);
+		break;
+
 
 	case every4th:						// potentially needs 4th odd/even to offset one frame
 		return (loopCount % 4 == 0);
@@ -318,36 +354,32 @@ function DMDTitle(bright, transIn, delay, transOut) {
 	if (info.mediaName != null) {				// Look for an image/animation file
 
 		for (var i = 0; i < extensions.length; i++) {
-			if (fso.FileExists("./Scripts/dmds/tables/" + info.mediaName + extensions[i])) {
-				queueVideo("./Scripts/dmds/tables/" + info.mediaName + extensions[i], transIn, transOut, 0);
+			let path = "./Scripts/dmds/tables/" + info.mediaName + extensions[i];
+			if (fso.FileExists(path)) {
+				queueVideo(path, transIn, transOut, 0);
 				hasTitle = true;
 				break;
 			}
 		}
-
 	}
 
 	if (!hasTitle) {					// No image - use text
-		var name = info.title.trim();
-		var subname = "";
-		if (name.indexOf('(') != -1) {			// trim anything in brackets
-			var sep = info.title.indexOf('(');
-			name = info.title.slice(0, sep - 1).trim();
-		}
-		if (name.length > 16) {
-			for (var i = 15; i > 0; i--) {		// try to split long names at a space
-				if (name.charCodeAt(i) == 32) {
+		let name = info.title;
+		let subname = "";
+
+		name = name.split("(")[0].trim();		// First string before ( delimiter
+		name = name.replace("&", "and");
+		if (name.length > 16) {				// name too long - split at space before char 16
+			for (let i = 15; i > 0; i--) {		
+				if (name[i] == " ") {
 					subname = name.slice(i).trim();
 					name = name.slice(0, i).trim();
 					break;
 				}
 			}
 		}
-		if(subname.length > 16) {			// still long - use the first word
-			if (subname.indexOf(' ') != -1) {
-				var sep = subname.indexOf(' ');
-				subname = subname.slice(0, sep).trim();
-			}
+		if(subname.length > 16) {			// subname too long - use the first word
+			subname = subname.split(" ")[0].trim();	// First word before space
 		}
  
 		udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", name, bright, subname, bright, transIn, delay, transOut);
@@ -581,13 +613,6 @@ function UpdateDMD() {
 	//
 	if (useTableRom && loopCount == 0) {
 		let rom = info.resolveROM();
-		logfile.log("> Update DMD for:");
-		logfile.log("> rom: '".concat(rom.vpmRom, "'"));
-		logfile.log("> manufacturer:", info.manufacturer);
-		logfile.log("> title:", info.title);
-		logfile.log("> year:", info.year);
-		logfile.log("> Table type: ", info.tableType);
-		logfile.log("> Highscore style: ", info.highScoreStyle);
 		if (rom.vpmRom == null) {
 			dmd.GameName = "";
 		} else {
@@ -604,12 +629,9 @@ function UpdateDMD() {
 		buildDMDDisplay(info, attractSequence, loopCount);	// Attract mode sequence
 	}
 		
-
 	//	done, unlock the DMD render thread
 	//
 	dmd.UnlockRenderThread();
-	logfile.log("< Update DMD done");
-
 
 	//	Call myself for the next update
 	//
@@ -632,7 +654,6 @@ overlay.clear("#ff000000");
 //	Game selected/wheel moved
 //
 gameList.on("gameselect", event => {
-	logfile.log("> gameselect " + event.game.title);
 	info = event.game;
 	if (useTableRom) {
 		if (updater !== undefined) clearTimeout(updater);
@@ -646,10 +667,7 @@ gameList.on("gameselect", event => {
 //	C: Visual Pinball...	returned if no scores available
 //
 gameList.on("highscoresready", event => {
-	logfile.log("> highscoresready");
 	if (event.success && event.game != null) {
-		logfile.log("> scores received")
-
 		if(event.scores[0].slice(0,20) == "Not supported rom : ") return;		// invalid highscores - ignore it
 
 		for (var i = 0; i < event.scores.length; i++) {
@@ -663,7 +681,6 @@ gameList.on("highscoresready", event => {
 //	Turn off DMD rendering
 //
 mainWindow.on("prelaunch", event => {
-	logfile.log("> launch");
 	if (dmd != null) {
 		udmd.CancelRendering();
 		dmd.Run = false;					// stop drawing
@@ -674,7 +691,6 @@ mainWindow.on("prelaunch", event => {
 //	Turn on DMD rendering
 //
 mainWindow.on("postlaunch", event => {
-	logfile.log("> postlaunch");
 	if (dmd != null) dmd.Run = true;				// start drawing
 	UpdateDMD();
 });
