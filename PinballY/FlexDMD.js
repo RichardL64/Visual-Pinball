@@ -368,8 +368,12 @@ function DMDTitle(bright, transIn, delay, transOut) {
 		let subname = "";
 
 		name = name.split("(")[0].trim();		// First string before ( delimiter
-		name = name.replace("&", "and");
-		if (name.length > 16) {				// name too long - split at space before char 16
+		name = name.replace("&", "and");		// no &
+
+		if(name.length <=16) {
+			name = name.replace("'", "");		// no ' on single line large text
+
+		} else {					// name too long - split at space before char 16
 			for (let i = 15; i > 0; i--) {		
 				if (name[i] == " ") {
 					subname = name.slice(i).trim();
