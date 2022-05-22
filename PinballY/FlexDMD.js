@@ -691,6 +691,7 @@ mainWindow.on("prelaunch", event => {
 //	Turn on DMD rendering
 //
 mainWindow.on("postlaunch", event => {
+	loopCount = 0;							// reset sequence on leaving a game
 	if (dmd != null) dmd.Run = true;				// start drawing
 	UpdateDMD();
 });
