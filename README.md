@@ -8,7 +8,9 @@ PinballY
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
   
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
-  - FilterTop.js    Add custom filters for Top loaded, Top loaded Time and top playtime(loaded time / loaded count)
+  - FilterTop.js    Filter top n tables, of the currently selected filter
+                    i.e. if 90s filter selected => filters top 10 90s tables,
+                         if Williams filter selected => filters top 10 Williams tables etc.
   
   - FlexDMD.js      Enhanced from vbousquet's original to drive display sequence from an array.
                     Includes options to vary the displayed information in sequences or randomly
