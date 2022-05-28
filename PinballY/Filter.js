@@ -2,7 +2,7 @@
 //  	Filter
 //	https://github.com/RichardL64
 //
-//  	Cycle through pre-defined filters with the magnasave buttons
+// 	Cycle through pre-defined filters with the magnasave buttons
 //
 //	R.Lincoln	October 2021
 //
@@ -11,6 +11,7 @@
 //
 const myFilters = [
 	"All", 
+	"User.Top10LoadCount",
 	"Manuf.Bally",
 	"Manuf.Capcom",
 	"Manuf.Data East",
@@ -55,8 +56,6 @@ function setFilter(filter) {
 }
 
 
-//	Setup the main window keypress hook
-//
 mainWindow.on("keyup", myKeyUp);
 logfile.log("[Filter] Initialised");
 
