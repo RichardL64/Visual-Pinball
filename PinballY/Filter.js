@@ -54,7 +54,7 @@ function myKeyUp(ev) {
 //
 function setFilter(filter) {
 	let fs = new FilterSelectEvent();
-	fs.id = myFilters[filter]
+	fs.id = myFilters[filter];
 	gameList.dispatchEvent(fs);
 
 	gameList.setCurFilter(myFilters[filter]);
