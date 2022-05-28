@@ -11,7 +11,6 @@
 //
 const myFilters = [
 	"All", 
-	"User.Top10LoadCount",
 	"Manuf.Bally",
 	"Manuf.Capcom",
 	"Manuf.Data East",
@@ -50,8 +49,14 @@ function myKeyUp(ev) {
 }
 
 //	Select the passed filter number
+//	PBY doesnt fire the filter select event by default - so manually trigger it here
+//	Used by fitlertop.js to detect the previous filter.
 //
 function setFilter(filter) {
+	let fs = new FilterSelectEvent();
+	fs.id = myFilters[filter]
+	gameList.dispatchEvent(fs);
+
 	gameList.setCurFilter(myFilters[filter]);
 }
 
