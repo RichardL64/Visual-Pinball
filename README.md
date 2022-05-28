@@ -2,17 +2,26 @@
 Visual pinball & associated software, my mods/scripts settings.
 
 PinballY
-  - Main.js         PinballY entry point invoking other scripts
+  - Main.js         PinballY entry point calls other scripts
+  
+  - AttractFade.js  Fade Playfield, DMD and Backglass with ~80% black overlay in attract, aka inactivity mode 
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
+  
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
-  - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
+  - FilterTop.js    Add custom filters for Top loaded, Top loaded Time and top playtime(loaded time / loaded count)
+  
+  - FlexDMD.js      Enhanced from vbousquet's original to drive display sequence from an array
+                    Includes options to vary the displayed information in sequences or randomly
+  
+  - DMDImage.js     Stand alone script to generate FlexDMD game images @ 128x32 from PBY DMD screenshots (mk1 algorithm)
+                    Scans the PBY DMD images folder for new or changed images
+  
   - LaunchFade.js   Fade the preview playfield with ~80% black overlay during game load
   - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
+  
+  - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
-  - AttractFade.js  Fade Playfield, DMD and Backglass with ~80% black overlay in attract, aka inactivity mode 
 
-  - FlexDMD.js      Enhanced from vbousquet's original to drive display sequence from an array rather than hard coded 
-  - DMDImage.js     Stand alone script to generate FlexDMD game images @ 128x32 from PBY DMD screenshots (mk1 algorithm)
 
 VPX
   - SSF.vbs
