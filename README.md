@@ -10,10 +10,10 @@ PinballY
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
   - FilterTop.js    Add custom filters for Top loaded, Top loaded Time and top playtime(loaded time / loaded count)
   
-  - FlexDMD.js      Enhanced from vbousquet's original to drive display sequence from an array
+  - FlexDMD.js      Enhanced from vbousquet's original to drive display sequence from an array.
                     Includes options to vary the displayed information in sequences or randomly
   
-  - DMDImage.js     Stand alone script to generate FlexDMD game images @ 128x32 from PBY DMD screenshots (mk1 algorithm)
+  - DMDImage.js     Stand alone script to generate FlexDMD game images @ 128x32 from PBY DMD screenshots (mk1 algorithm).
                     Scans the PBY DMD images folder for new or changed images
   
   - LaunchFade.js   Fade the preview playfield with ~80% black overlay during game load
