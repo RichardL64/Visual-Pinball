@@ -8,7 +8,7 @@ PinballY
   - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
   
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
-  - FilterTop.js    Filter top n tables, of the currently selected filter
+  - FilterTop.js    Filter top n tables of the currently selected filter.
                     i.e. if 90s filter selected => filters top 10 90s tables,
                          if Williams filter selected => filters top 10 Williams tables etc.
   
