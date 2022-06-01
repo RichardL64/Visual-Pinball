@@ -34,7 +34,7 @@ function createTopLoadedFilter(n) {
 	let top;
 	gameList.createFilter({
 		id:	"Top" + n + "LoadCount",
-		title:	"Top " + n + " loaded tables",
+		title:	"Top " + n + " Loaded tables",
 		group:	filterGroup,
 //		sortKey: "9 Top " + n,
 
@@ -66,7 +66,7 @@ function createTopPlaytimeFilter(n) {
 	let top;
 	gameList.createFilter({
 		id:	"Top" + n + "Playtime",
-		title:	"Top " + n + " total playtime",
+		title:	"Top " + n + " Play time",
 		group:	filterGroup,
 //		sortKey: "9 Top " + n,
 
