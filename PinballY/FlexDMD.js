@@ -128,7 +128,6 @@ const mainSequence = [
 	title,
 	manuf,
 
-	cutIn,
 	"./scripts/dmds/Misc/Push Start 128x32.gif",
 
 	fadeIn,
@@ -163,8 +162,8 @@ const mainSequence = [
 //
 const attractSequence = [
 	b5,						// dim the display
-	cutIn, cutOut,
-	"Richard's", "Virtual Pinball",
+	scrollOnLeft, scrollOffLeft,
+	20000, "Richard's", "Virtual Pinball",		// 20 seconds static message
 ];
 
 
@@ -223,7 +222,6 @@ function buildDMDDisplay(info, sequence, loopCount) {
 		case zoomOut:
 		case scrollOffLeft: case scrollOffRight:
 		case scrollOffUp: case scrollOffDown:
-		case cutIn:
 			transOut = seq * -1 -100;
 			break;
 		case cutOut:
