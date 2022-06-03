@@ -581,7 +581,7 @@ let updater;							// UpdateDMD's callback timer
 
 // 	logfile.log(getMethods(dmd).join("\n"));
 //
-function TestMarshalling() {
+function testMarshalling() {
 	dmd.LockRenderThread();
 	let video = dmd.NewVideo("Manufacturer", "./Scripts/dmds/manufacturers/bally.gif");
 	logfile.log(getMethods(video).join("\n"));
@@ -595,7 +595,7 @@ function TestMarshalling() {
 //	Core Update DMD render functionality
 //	Calls itself on a loop until the timer is stopped
 //
-function UpdateDMD() {
+function updateDMD() {
 
 	//	If called by the timer, clear it
 	//
@@ -622,7 +622,7 @@ function UpdateDMD() {
 	//	If its still rendering and the same game, set a timer and come back later
 	//
 	if (udmd.IsRendering() && shownInfo != null && info.id == shownInfo.id) {
-		updater = setTimeout(UpdateDMD, 1000);
+		updater = setTimeout(updateDMD, 1000);
 		return;
 	}
 
@@ -663,7 +663,7 @@ function UpdateDMD() {
 
 	//	Call myself for the next update
 	//
-	updater = setTimeout(UpdateDMD, 1000);
+	updater = setTimeout(updateDMD, 1000);
 }
 
 
@@ -678,6 +678,7 @@ function UpdateDMD() {
 //
 let overlay = dmdWindow.createDrawingLayer(1000);
 overlay.clear("#ff000000");
+updateDMD();
 
 //	Game selected/wheel moved
 //
@@ -685,9 +686,9 @@ gameList.on("gameselect", event => {
 	info = event.game;
 	if (useTableRom) {
 		if (updater !== undefined) clearTimeout(updater);
-		updater = setTimeout(UpdateDMD, 200);			// Delay update to take in account the ROM settings which can cause stutters
+		updater = setTimeout(updateDMD, 200);			// Delay update to take in account the ROM settings which can cause stutters
 	} else {
-		UpdateDMD();
+		updateDMD();
 	}
 });
 
@@ -721,7 +722,7 @@ mainWindow.on("prelaunch", event => {
 mainWindow.on("postlaunch", event => {
 	loopCount = 0;							// reset sequence on leaving a game
 	if (dmd != null) dmd.Run = true;				// start drawing
-	UpdateDMD();
+	updateDMD();
 });
 
 
@@ -732,13 +733,13 @@ mainWindow.on("postlaunch", event => {
 mainWindow.on("attractmodestart", event => {
 	attractMode = true;
 	shownInfo = null;						// force a DMD refresh
-	UpdateDMD();
+	updateDMD();
 });
 
 mainWindow.on("attractmodeend", event => {
 	attractMode = false;
 	shownInfo = null;						// force a DMD refresh
-	UpdateDMD();
+	updateDMD();
 });
 
 
