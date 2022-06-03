@@ -5,7 +5,7 @@ PinballY
   - Main.js         PinballY entry point calls other scripts
   
   - AttractFade.js  Fade Playfield, DMD and Backglass with ~80% black overlay in attract, aka inactivity mode 
-  - AutoOff.js      Automatic system shutdown after a period of inactivity in screensaver mode
+  - AutoOff.js      Automatic system shutdown after a period of inactivity in attract mode
   
   - Filter.js       Use Magnasave buttons to cycle through an arbitrary list of filters
   - FilterTop.js    Filter top n tables of the currently selected filter.
