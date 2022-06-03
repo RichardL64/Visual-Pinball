@@ -127,16 +127,11 @@ const mainSequence = [
 	fadeIn, fadeOut,
 	title,
 	manuf,
-
 	"./scripts/dmds/Misc/Push Start 128x32.gif",
-
-	fadeIn,
 	highScores,
 
-	3000,
+	4000,						// 4 seconds to read stats
 	gameStats,
-
-	2000,
 	every3rd2, globalStats,				// global stats every 3rd loop
 
 
@@ -278,7 +273,7 @@ function checkLoop(loopCount, loopFlag) {
 		break;
 
 	case half:
-		return (Math.random() < .5);
+		return (Math.random() > .5);
 		break;
 
 	case everyOdd:
