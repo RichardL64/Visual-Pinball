@@ -105,7 +105,7 @@ const 	every=-300, everyOdd=-301, everyEven=-302,
 	first=-307, 
 	half=-308;
 
-//
+
 //	Display sequencers used to drive the DMD content
 //
 //	Note:
@@ -154,7 +154,6 @@ const mainSequence = [
 ];
 
 
-//
 //	Attract mode sequence
 //
 //	To use the same sequence cut/paste the same entries or use this command:
@@ -167,9 +166,8 @@ const attractSequence = [
 ];
 
 
-
-
-//	Build the DMD display from the sequence arrays
+//	Build the DMD display from the passed sequence array
+//	All controls/settings are sticky until overwritten
 //
 function buildDMDDisplay(info, sequence, loopCount) {
 	let bright = 15;						// display mode defaults updated as we go
@@ -180,7 +178,7 @@ function buildDMDDisplay(info, sequence, loopCount) {
 	for(let i = 0; i < sequence.length; i++) {
 		let seq = sequence[i];
 
-		//							Interpret loop variation and skip this entry if required
+		//	Interpret loop variation and skip this entry if required
 		//
 		switch(seq) {
 		case every:
@@ -200,7 +198,7 @@ function buildDMDDisplay(info, sequence, loopCount) {
 		if(!checkLoop(loopCount, loopFlag)) continue;		// <== if true, skip to the next entry
 
 
-		//							Interpret sequence entries
+		//	Interpret sequence entries
 		//
 		switch(seq) {
 		case b0: case b1: case b2: case b3: case b4:		// brightness
@@ -249,7 +247,6 @@ function buildDMDDisplay(info, sequence, loopCount) {
 			break;
 
 		// Fallthrough, could be
-		//	A loop control value 'everyxxx' if negative
 		//	A delay number, path to a file or explicit string content
 		//
 		default:
@@ -327,6 +324,8 @@ function DMDText(seq, bright, transIn, delay, transOut) {
 	case ".jpg":
 		if(fso.FileExists(seq)) {
 			udmd.DisplayScene00(seq, "", 15, "", 15, transIn, delay, transOut);
+		} else {
+			logfile.log("[FlexDMD] Missing image file " + seq);
 		}
 		break;
 
@@ -335,6 +334,8 @@ function DMDText(seq, bright, transIn, delay, transOut) {
 			let video = dmd.NewVideo(seq, seq);			// to get video length
 			let id = udmd.RegisterVideo(2, false, seq);		// scale mode, loop, name
 			udmd.DisplayScene00(id, "", 15, "", 15, transIn, video.Length *1000, transOut);
+		} else {
+			logfile.log("[FlexDMD] Missing animation file " + seq);
 		}
 		break;
 
@@ -590,6 +591,18 @@ function testMarshalling() {
 	dmd.UnlockRenderThread();
 }
 
+//	Setup flexDMD
+//
+function initDMD() {
+	dmd = createAutomationObject("FlexDMD.FlexDMD");
+	dmd.GameName = "PinballY";
+	dmd.RenderMode = 1; 					// 0 = Gray 4 shades, 1 = Gray 16 shades, 2 = Full color
+	dmd.Width = 128;
+	dmd.Height = 32;
+	dmd.Show = true;
+	dmd.Run = true;
+	udmd = dmd.NewUltraDMD();
+}
 
 //
 //	Core Update DMD render functionality
@@ -602,20 +615,6 @@ function updateDMD() {
 	if (updater !== undefined) clearTimeout(updater);
 	updater = undefined;
 
-
-	//	Setup DMD object etc
-	//
-	if (dmd == null) {
-		dmd = createAutomationObject("FlexDMD.FlexDMD");
-		dmd.GameName = "PinballY";
-		dmd.RenderMode = 1; 				// 0 = Gray 4 shades, 1 = Gray 16 shades, 2 = Full color
-		dmd.Width = 128;
-		dmd.Height = 32;
-		dmd.Show = true;
-		dmd.Run = true;
-		udmd = dmd.NewUltraDMD();
-	}
-	
 	if (dmd.Run == false) return;				// if no dmd running yet
 	if (info == null) return;				// if no game selected yet
 
@@ -678,6 +677,7 @@ function updateDMD() {
 //
 let overlay = dmdWindow.createDrawingLayer(1000);
 overlay.clear("#ff000000");
+initDMD();								// Force DMD load during PBY setup
 updateDMD();
 
 //	Game selected/wheel moved
