@@ -19,7 +19,7 @@ PinballY
                     Scans the PBY DMD images folder for new or changed images
   
   - LaunchFade.js   Fade the preview playfield with ~80% black overlay during game load
-  - LaunchVideo.js  Run 'game (manuf year).mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
+  - LaunchVideo.js  Run '<mediaName>.mp4' or 'launch.mp4' on game launches (does not co-exist with LaunchFade)
   
   - Spin.js         Use the plunger to spin the game wheel like a wheel of fortune
   - Startup.js      Choose a random game from the 'startup' category and run it automatically
