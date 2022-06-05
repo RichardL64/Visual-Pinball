@@ -672,13 +672,21 @@ function updateDMD() {
 //
 let overlay = dmdWindow.createDrawingLayer(1000);
 overlay.clear("#ff000000");
-initDMD();								// Force DMD load during PBY setup
+
+//	Force load the initial game at startup
+//
+initDMD();
 updateDMD();
 
 //	Game selected/wheel moved
 //
 gameList.on("gameselect", event => {
 	info = event.game;
+	if(info == null) {
+		logfile.log("[FlexDMD] Game null");
+	} else {
+		logfile.log("[FlexDMD] Game selected " + info.title);
+	}
 	if (useTableRom) {
 		if (updater !== undefined) clearTimeout(updater);
 		updater = setTimeout(updateDMD, 200);			// Delay update to take in account the ROM settings which can cause stutters
