@@ -475,7 +475,7 @@ function DMDGlobalStats(bright, transIn, delay, transOut) {
 		totalTime += inf.playTime;
 	}
 	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total tables loaded" , bright, "" + totalCount, bright, transIn, delay, transOut);
-	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total play time" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
+	udmd.DisplayScene00("FlexDMD.Resources.dmds.black.png", "Total time played" , bright, "" + totalTime.toDDHHMMSS(), bright, transIn, delay, transOut);
 }
 
 //	Render high score table
@@ -674,8 +674,10 @@ let overlay = dmdWindow.createDrawingLayer(1000);
 overlay.clear("#ff000000");
 
 //	Force load the initial game at startup
+//	Sometimes the game select event doesnt fire on first load
 //
 initDMD();
+info = gameList.getWheelGame(0);
 updateDMD();
 
 //	Game selected/wheel moved
